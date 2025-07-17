@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .bill-page {
+        width: 210mm;  /* A4 width */
+        height: 148mm; /* A4 half height */
+        padding: 10mm;
+        page-break-after: always;
+        margin-bottom: 48px; /* Extra gap after each copy */
+    }
+    .bill-header {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 4px;
+        margin-top: -28px;
+    }
+    .bill-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .bill-table th, .bill-table td {
+        border: 1px solid black;
+        padding: 4px;
+        text-align: center;
+    }
+    .bill-footer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    @media print {
+        @page {
+            size: A4;
+            margin: 0;
+        }
+    }
+</style>
+
+{% for copy_type in ['Office Copy', 'Factory Copy', 'Gatepass Copy'] %}
+<div class="bill-page">
+    <div class="bill-header">
+        <h2>Al Wasiqa Packages Pvt Ltd</h2>
+        <div style="text-align: right">{{ copy_type }}</div>
+    </div>
+    
+    <div class="bill-info">
+        <div>
+            <strong>M/S:</strong> {{ bill.customer_name }}
+        </div>
+        <div>
+            <strong>Date:</strong> {{ bill.date }}&nbsp;&nbsp;&nbsp;
+            <strong>No:</strong> {{ bill.bill_no }}
+        </div>
+    </div>
+
+    <table class="bill-table">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>QTY</th>
+                <th>Size</th>
+                <th>Colour</th>
+                <th>Brand</th>
+                <th>Mic</th>
+                <th>Printed</th>
+                <th>Varity</th>
+                <th>Per Ctn<br>Qty</th>
+                <th>@</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in bill['items'] %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td style="vertical-align: middle; padding: 4px; line-height: 1.1;">
+                    {# Roman Urdu: Pehle CTN+ROLL dikhaye, phir underline, phir total rolls #}
+                    <span style="font-size:13px;">{{ item.qty_display }}</span><br>
+                    <span style="display:block; border-bottom:1px solid #000; width:80%; margin:2px auto 2px auto;"></span>
+                    <span style="font-size:12px; font-weight:bold;">{{ item.qty }} Rolls</span>
+                </td>
+                <td>{{ item.size }}</td>
+                <td>{{ item.colour }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.mic }}</td>
+                <td>{{ item.printed }}</td>
+                <td>{{ item.varity }}</td>
+                <td>{{ item.per_ctn_qty }}</td>
+                <td>{{ item.rate }}</td>
+            </tr>
+            {% endfor %}
+            {# Add empty rows to make total 10 rows #}
+            {% for _ in range(10 - bill['items']|length) %}
+            <tr>
+                <td>{{ loop.index + bill['items']|length }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="10" style="padding:0; border:none; vertical-align:bottom;">
+                    <div style="height: 28px;"></div>  {# 1 box ka vertical gap #}
+                    <div class="bill-footer" style="margin:0; padding-top:18px;">
+                        <div style="border-top: 1px solid #000; min-width: 120px; text-align: center; display:inline-block;">Factory Manager</div>
+                        <div style="border-top: 1px solid #000; min-width: 120px; text-align: center; display:inline-block;">Dispatch Manager</div>
+                        <div style="border-top: 1px solid #000; min-width: 150px; text-align: center; display:inline-block;">Office Godown Manager</div>
+                        <div style="display:inline-block; margin-left:20px;">
+                            <strong>Bill No:</strong> _______
+                            <strong>Date:</strong> _______
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endfor %}
+{% endblock %} 

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jambos - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+
+        /* Center align number columns */
+        .number-column {
+            text-align: center !important;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls -->
+            <a class="nav-link active" href="/jambos">
+                <i class="fas fa-film"></i>
+                Jambo Rolls
+            </a>
+            
+            <!-- Customer Orders -->
+            <a class="nav-link" href="/orders">
+                <i class="fas fa-shopping-cart"></i>
+                Customer Orders
+            </a>
+            
+            <!-- Production -->
+            <a class="nav-link" href="/production">
+                <i class="fas fa-industry"></i>
+                Production
+            </a>
+            
+            <!-- Parties -->
+            <a class="nav-link" href="/parties">
+                <i class="fas fa-users"></i>
+                Parties
+            </a>
+            
+            <!-- Reports -->
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            
+            <!-- Settings -->
+            <a class="nav-link" href="/settings">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-outline-primary mobile-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2">🎬 Jambo Rolls</h5>
+            </div>
+            <div>
+                <a href="/jambos/bulk" class="btn btn-warning me-2">
+                    <i class="fas fa-layer-group me-2"></i>📦 Bulk Add
+                </a>
+                <!-- Roman Urdu: PDF export button add kar raha hun -->
+                <a id="exportPdfBtn" class="btn btn-success" style="color:white;">
+                    <i class="fas fa-file-pdf me-2"></i>📄 Export PDF
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Search aur PDF Export Section (Roman Urdu: Search bar aur PDF export button wapas add kar rahe hain) -->
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <!-- Roman Urdu: Search form ab GET request par reload karega -->
+                    <form class="d-flex" method="GET" action="/jambos">
+                        <input type="text" class="form-control me-2" name="search" id="searchInput" placeholder="Search by Jambo#, Color, Party Name, Micron..." value="{{ request.args.get('search', '') }}">
+                        <button class="btn btn-primary" type="submit"><i class="fas fa-search me-1"></i>Search</button>
+                        <a class="btn btn-outline-secondary ms-2" href="/jambos"><i class="fas fa-times"></i></a>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <!-- Roman Urdu: PDF export button ab backend PDF route se connect hai -->
+                    <!-- <a href="/jambos/bulk/pdf" class="btn btn-success" target="_blank"><i class="fas fa-file-pdf me-1"></i>Export PDF</a> -->
+                </div>
+            </div>
+            <!-- Statistics Cards -->
+            <div class="row mt-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="text-success" id="totalJambos">0</h4>
+                            <p class="mb-0">Total Jambos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="text-primary" id="totalBalance">0</h4>
+                            <p class="mb-0">Total Balance Yards</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="text-warning" id="totalWeight">0</h4>
+                            <p class="mb-0">Total Weight</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="text-info" id="availableJambos">0</h4>
+                            <p class="mb-0">Available Jambos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jambos Table -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Jambos List
+                        <span class="badge bg-primary" id="jambosCount">Loading...</span>
+                    </h5>
+                    <div>
+                        <button class="btn btn-sm btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Jambo#</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Size</th>
+                                    <th>Color</th>
+                                    <th>Micron</th>
+                                    <th>Roll No</th>
+                                    <th>Weight</th>
+                                    <th>Party</th>
+                                    <th class="text-center">Calculated</th>
+                                    <th class="text-center">Used</th>
+                                    <th class="text-center">Balance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jambosTableBody">
+                                <tr>
+                                    <td colspan="13" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Alert -->
+            <div class="alert alert-danger alert-dismissible fade d-none" role="alert" id="errorAlert">
+                <span id="errorMessage"></span>
+                <button type="button" class="btn-close" onclick="hideError()"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Format date to DD-MM-YYYY
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            // If already in DD-MM-YYYY format
+            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+            // If in YYYY-MM-DD format
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const [y, m, d] = dateStr.split('-');
+                return `${d}-${m}-${y}`;
+            }
+            return dateStr;
+        }
+
+        // Show error message
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            const messageEl = document.getElementById('errorMessage');
+            messageEl.textContent = message;
+            alert.classList.remove('d-none');
+            alert.classList.add('show');
+        }
+
+        // Hide error message
+        function hideError() {
+            const alert = document.getElementById('errorAlert');
+            alert.classList.remove('show');
+            alert.classList.add('d-none');
+        }
+
+        // Load jambos data
+        function loadJambos() {
+            const tbody = document.getElementById('jambosTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            fetch('/api/jambos/list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const jambos = data.jambos;
+                        document.getElementById('jambosCount').textContent = `${jambos.length} Jambos`;
+                        
+                        tbody.innerHTML = jambos.map(jambo => {
+                            const status = jambo.status || 'ACTIVE';
+                            const statusClass = status === 'CLOSED' ? 'danger' : 'success';
+                            const usedYards = jambo.used_yards || 0;
+                            const formattedDate = formatDate(jambo.date);
+                            
+                            return `
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">#${jambo.jambo_no}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${statusClass}">
+                                            ${status === 'CLOSED' ? '🔒 CLOSED' : '🔓 ACTIVE'}
+                                        </span>
+                                    </td>
+                                    <td>${formattedDate}</td>
+                                    <td>${jambo.size_mm}mm × ${jambo.size_meter}m</td>
+                                    <td>
+                                        <span class="badge bg-secondary">${jambo.colour}</span>
+                                    </td>
+                                    <td class="text-center">${jambo.micron}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">${jambo.roll_no || '10'}</span>
+                                    </td>
+                                    <td class="text-center">${jambo.net_weight} kg</td>
+                                    <td>${jambo.party_name}</td>
+                                    <td class="text-center fw-bold text-primary">${jambo.calculated_yard}</td>
+                                    <td class="text-center fw-bold ${usedYards > 0 ? 'text-warning' : ''}">${usedYards}</td>
+                                    <td class="text-center fw-bold ${jambo.balance_yard === 0 ? 'text-danger' : 'text-success'}">${jambo.balance_yard}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            ${status === 'CLOSED' ? `
+                                                <button class="btn btn-sm btn-success" onclick="reopenJambo('${jambo.jambo_no}')">
+                                                    <i class="fas fa-lock-open"></i> Reopen
+                                                </button>
+                                            ` : `
+                                                <button class="btn btn-sm btn-danger" onclick="closeJambo('${jambo.jambo_no}')">
+                                                    <i class="fas fa-times-circle"></i> Close
+                                                </button>
+                                            `}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                        
+                        // Update statistics
+                        updateStatistics(jambos);
+                    } else {
+                        showError('Failed to load jambos: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading jambos:', error);
+                    showError('Failed to load jambos: ' + error.message);
+                });
+        }
+
+        // Update statistics
+        function updateStatistics(jambos) {
+            const totalJambos = jambos.length;
+            const totalBalance = jambos.reduce((sum, j) => sum + (j.balance_yard || 0), 0);
+            const totalWeight = jambos.reduce((sum, j) => sum + (parseFloat(j.net_weight) || 0), 0);
+            const availableJambos = jambos.filter(j => j.balance_yard > 0).length;
+            
+            document.getElementById('totalJambos').textContent = totalJambos;
+            document.getElementById('totalBalance').textContent = totalBalance.toLocaleString();
+            document.getElementById('totalWeight').textContent = Math.round(totalWeight).toLocaleString() + ' kg';
+            document.getElementById('availableJambos').textContent = availableJambos;
+        }
+
+        // Close jambo
+        function closeJambo(jamboNo) {
+            if (!confirm(`Are you sure you want to close Jambo #${jamboNo}?`)) {
+                return;
+            }
+            
+            fetch(`/api/jambo/close/${jamboNo}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadJambos();  // Reload the list
+                } else {
+                    showError('Failed to close jambo: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error closing jambo:', error);
+                showError('Failed to close jambo: ' + error.message);
+            });
+        }
+
+        // Reopen jambo
+        function reopenJambo(jamboNo) {
+            if (!confirm(`Are you sure you want to reopen Jambo #${jamboNo}?`)) {
+                return;
+            }
+
+            fetch(`/api/jambo/reopen/${jamboNo}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadJambos();  // Reload the list
+                } else {
+                    showError('Failed to reopen jambo: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error reopening jambo:', error);
+                showError('Failed to reopen jambo: ' + error.message);
+            });
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            window.location.href = '/jambos/excel';
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadJambos);
+
+        // Roman Urdu: Real-time search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#jambosTableBody tr');
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                let show = false;
+                if (rowText.includes(searchTerm) || searchTerm === '') {
+                    show = true;
+                } else {
+                    // Roman Urdu: Date ki column ko alag se check kar rahe hain
+                    const dateCell = row.querySelectorAll('td')[2];
+                    if (dateCell) {
+                        const dateVal = dateCell.innerText.trim(); // DD-MM-YYYY
+                        // MM-YYYY
+                        if (/^\d{2}-\d{4}$/.test(searchTerm)) {
+                            const [mm, yyyy] = searchTerm.split('-');
+                            if (dateVal.endsWith(`-${yyyy}`) && dateVal.slice(3,5) === mm) show = true;
+                        }
+                        // YYYY-MM
+                        else if (/^\d{4}-\d{2}$/.test(searchTerm)) {
+                            const [yyyy, mm] = searchTerm.split('-');
+                            if (dateVal.endsWith(yyyy) && dateVal.slice(3,5) === mm) show = true;
+                        }
+                        // Sirf year
+                        else if (/^\d{4}$/.test(searchTerm)) {
+                            if (dateVal.endsWith(searchTerm)) show = true;
+                        }
+                        // Sirf month (01-12)
+                        else if (/^\d{2}$/.test(searchTerm)) {
+                            if (dateVal.slice(3,5) === searchTerm) show = true;
+                        }
+                    }
+                }
+                row.style.display = show ? '' : 'none';
+            });
+        });
+
+        // PDF Export: Only visible (filtered) rows ka data bhejna
+        function getVisibleJambosData() {
+            const rows = document.querySelectorAll('#jambosTableBody tr');
+            const data = [];
+            rows.forEach(row => {
+                if (row.style.display === 'none') return;
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 13) return; // skip loading row
+                data.push({
+                    jambo_no: cells[0].innerText.replace('#','').trim(),
+                    status: cells[1].innerText.trim(),
+                    date: cells[2].innerText.trim(),
+                    size: cells[3].innerText.trim(),
+                    colour: cells[4].innerText.trim(),
+                    micron: cells[5].innerText.trim(),
+                    roll_no: cells[6].innerText.trim(),
+                    net_weight: cells[7].innerText.trim(),
+                    party_name: cells[8].innerText.trim(),
+                    calculated_yard: cells[9].innerText.trim(),
+                    used_yards: cells[10].innerText.trim(),
+                    balance_yard: cells[11].innerText.trim()
+                });
+            });
+            return data;
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const jambos = getVisibleJambosData();
+            if (jambos.length === 0) {
+                alert('Koi data nahi hai export ke liye!');
+                return;
+            }
+            fetch('/jambos/pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jambos })
+            })
+            .then(res => res.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'JAMBO_REPORT_' + new Date().toISOString().slice(0,10) + '.html';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html> 

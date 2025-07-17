@@ -1,0 +1,7 @@
+flask
+xlsxwriter
+reportlab
+weasyprint
+# PDF generation ke liye libraries
+# reportlab - Basic PDF generation
+# weasyprint - HTML to PDF conversion 

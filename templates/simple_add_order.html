@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Order - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Dropdown submenu styles */
+        .nav-item.dropdown {
+            position: relative;
+        }
+        
+        .submenu {
+            display: none;
+            background-color: rgba(0,0,0,0.2);
+            margin-left: 0;
+            border-radius: 0;
+        }
+        
+        .nav-item.dropdown:hover .submenu {
+            display: block;
+        }
+        
+        .submenu .nav-link {
+            padding: 10px 15px 10px 45px;
+            font-size: 14px;
+            border-left: 2px solid transparent;
+        }
+        
+        .submenu .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 2px solid #ffc107;
+            transform: translateX(3px);
+        }
+        
+        .submenu .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            border-left: 2px solid #ffc107;
+        }
+        
+        .nav-item.dropdown .nav-link i.dropdown-arrow {
+            margin-left: auto;
+            margin-right: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item.dropdown:hover .nav-link i.dropdown-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+        
+        /* Order Header Section - Similar to bulk jambo orange */
+        .order-header {
+            background: linear-gradient(135deg, #ff7b00, #ff9500);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .order-header h3 {
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        /* Items Table Section - Similar to bulk jambo */
+        .items-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .items-table {
+            font-size: 12px;
+        }
+        .items-table input {
+            font-size: 11px;
+            padding: 2px 4px;
+            height: 28px;
+        }
+        .items-table th {
+            background-color: #495057;
+            color: white;
+            font-size: 11px;
+            padding: 5px;
+            text-align: center;
+        }
+        .items-table td {
+            padding: 2px;
+            vertical-align: middle;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .calc-amount {
+            background-color: #fff3cd !important;
+            color: #856404;
+        }
+        
+        /* Total Section - Similar to preview section in bulk */
+        .total-section {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        /* WhatsApp Buttons */
+        .whatsapp-btn {
+            background: #25D366;
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #1da851;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Action buttons styling */
+        .action-buttons {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        /* Searchable dropdown styles */
+        #customerDropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1050;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            background-color: white;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        #customerDropdown .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #212529;
+            text-decoration: none;
+            background-color: transparent;
+            border: 0;
+            transition: all 0.2s ease;
+        }
+        
+        #customerDropdown .dropdown-item:hover,
+        #customerDropdown .dropdown-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        #customerDropdown .dropdown-item mark {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 0.1rem 0.2rem;
+            border-radius: 0.2rem;
+        }
+        
+        #customerDropdown .dropdown-item.active mark {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/jambos">
+                    <i class="fas fa-film"></i>
+                    Jambo Rolls
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <a class="nav-link" href="/jambos">
+                        <i class="fas fa-list"></i>
+                        View All Jambos
+                    </a>
+                    <a class="nav-link" href="/jambos/bulk">
+                        <i class="fas fa-layer-group"></i>
+                        Bulk Add Jambos
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Customer Orders Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    Customer Orders
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu" style="display: block;">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-list"></i>
+                        View All Orders
+                    </a>
+                    <a class="nav-link active" href="/orders/add">
+                        <i class="fas fa-user-plus"></i>
+                        New Order
+                    </a>
+                </div>
+            </div>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px;">
+            
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            <a class="nav-link" href="#">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-light mobile-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    New Customer Order - Complete Order Entry
+                </h5>
+            </div>
+            <div>
+                <a href="/orders" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Quick Tips -->
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb"></i> <strong>Quick Tips:</strong> 
+                Press <kbd>Ctrl+I</kbd> to add new item | Fill Unit Price & Qty for auto-calculation | Tab to navigate quickly
+            </div>
+
+            <!-- Order Header -->
+            <div class="order-header">
+                <h3><i class="fas fa-file-invoice"></i> Order Header</h3>
+                <form id="orderForm" class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-hashtag"></i> Order No. *</label>
+                        <input type="text" class="form-control" id="order_no" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fas fa-user"></i> Customer Name *</label>
+                        <div class="input-group">
+                            <div class="position-relative flex-grow-1">
+                                <input type="text" id="customer_name" class="form-control" 
+                                       placeholder="Type to search customers..." 
+                                       autocomplete="off" 
+                                       required>
+                                <div id="customerDropdown" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto; display: none;">
+                                    <!-- Customers will be loaded here -->
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddCustomerModal()" title="Add New Customer">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">Type to search customers</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Date *</label>
+                        <input type="date" class="form-control" id="order_date" value="{{ current_date }}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><i class="fas fa-phone"></i> Phone</label>
+                        <input type="text" class="form-control" id="phone" placeholder="0321-1234567">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <textarea class="form-control" id="address" rows="2" placeholder="Complete address..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Items Section -->
+            <div class="items-section">
+                <div class="d-flex justify-content-between align-items-center p-3 bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shopping-cart"></i>
+                        Order Items - Press Ctrl+I to add item
+                    </h4>
+                    <button type="button" class="btn btn-light btn-sm" onclick="addItem()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table table-striped items-table mb-0" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No.</th>
+                                <th style="width: 80px;">Size MM</th>
+                                <th style="width: 80px;">Size Yard</th>
+                                <th style="width: 80px;">Qty</th>
+                                <th style="width: 60px;">Mic</th>
+                                <th style="width: 100px;">Brand</th>
+                                <th style="width: 100px;">Colour</th>
+                                <th style="width: 100px;">Variety</th>
+                                <th style="width: 100px;">Packing</th>
+                                <th style="width: 150px;">Printed Matter</th>
+                                <th style="width: 100px;">Unit Price (Rs.)</th>
+                                <th style="width: 120px;">Amount (Rs.)</th>
+                                <th style="width: 150px;">Notes</th>
+                                <th style="width: 80px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <!-- Items will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Total Section -->
+            <div class="total-section">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5><i class="fas fa-calculator"></i> Order Summary</h5>
+                        <p class="mb-1">Total Items: <span id="totalItems">0</span></p>
+                        <p class="mb-0">Fill order details and add items to see preview</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h3 class="text-success">
+                            <i class="fas fa-rupee-sign"></i>
+                            Total Amount: Rs. <span id="totalAmount">0</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <div class="row">
+                    <div class="col-md-8">
+                        <button type="button" class="btn whatsapp-btn me-2" onclick="sendWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> Send WhatsApp
+                        </button>
+                        <button type="button" class="btn btn-info me-2" onclick="previewOrder()">
+                            <i class="fas fa-eye"></i> Preview Order
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button type="button" class="btn btn-success me-2" onclick="saveOrder()">
+                            <i class="fas fa-save"></i> Save Order
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/orders'">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Modal -->
+    <div class="modal fade" id="whatsappModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fab fa-whatsapp"></i> Send Order via WhatsApp
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Customer: <span id="whatsappCustomer"></span></label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message Preview:</label>
+                        <textarea class="form-control" id="whatsappMessage" rows="15" style="font-family: monospace;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn whatsapp-btn" onclick="sendWhatsAppDirect()">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCustomerModalLabel">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>Add New Customer
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCustomerForm">
+                        <div class="mb-3">
+                            <label for="newCustomerName" class="form-label">Customer Name *</label>
+                            <input type="text" class="form-control" id="newCustomerName" required placeholder="Enter customer name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCustomerPhone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="newCustomerPhone" placeholder="0321-1234567">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCustomerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="newCustomerEmail" placeholder="customer@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCustomerAddress" class="form-label">Address</label>
+                            <textarea class="form-control" id="newCustomerAddress" placeholder="Complete address..." rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCustomerCity" class="form-label">City</label>
+                            <input type="text" class="form-control" id="newCustomerCity" placeholder="Karachi">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewCustomer()">
+                        <i class="fas fa-save me-2"></i>Add Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let itemCounter = 0;
+
+        // Auto-generate order number on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            generateOrderNumber();
+            addItem(); // Add first item by default
+            loadCustomers(); // Load customers for search
+        });
+
+        function generateOrderNumber() {
+            // Get next order number starting from OR-0001
+            fetch('/api/next-order-number')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.next_order_no) {
+                        document.getElementById('order_no').value = data.next_order_no;
+                    } else {
+                        // Fallback - generate simple order number
+                        document.getElementById('order_no').value = 'OR-0001';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating order number:', error);
+                    // Fallback order number
+                    document.getElementById('order_no').value = 'OR-0001';
+                });
+        }
+
+        function addItem() {
+            itemCounter++;
+            const tbody = document.getElementById('itemsTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="text-center">${itemCounter}</td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="69" required></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="72" required></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="12" required onchange="calculateAmount(this)"></td>
+                <td><input type="number" class="form-control form-control-sm" value="37" min="1"></td>
+                <td><input type="text" class="form-control form-control-sm" value="Brand" placeholder="Brand"></td>
+                <td><input type="text" class="form-control form-control-sm" value="Clear" placeholder="Any Colour"></td>
+                <td><input type="text" class="form-control form-control-sm" value="Type" placeholder="Type"></td>
+                <td><input type="text" class="form-control form-control-sm" value="Box/Carton" placeholder="Box/Carton"></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Print details"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0.00" step="0.01" onchange="calculateAmount(this)"></td>
+                <td><input type="number" class="form-control form-control-sm calc-amount" readonly></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Additional notes..."></td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            updateTotals();
+        }
+
+        function removeItem(button) {
+            button.closest('tr').remove();
+            updateTotals();
+        }
+
+        function calculateAmount(input) {
+            const row = input.closest('tr');
+            const qtyText = row.querySelector('td:nth-child(4) input').value.trim();
+            const unitPrice = parseFloat(row.querySelector('td:nth-child(11) input').value) || 0;
+            
+            // Try to extract number from qty text (e.g., "12 rolls" -> 12)
+            const qtyMatch = qtyText.match(/\d+/);
+            const qty = qtyMatch ? parseFloat(qtyMatch[0]) : 0;
+            
+            const amount = qty * unitPrice;
+            row.querySelector('td:nth-child(12) input').value = amount.toFixed(2);
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const rows = document.querySelectorAll('#itemsTableBody tr');
+            let totalItems = rows.length;
+            let totalAmount = 0;
+
+            rows.forEach(row => {
+                const amount = parseFloat(row.querySelector('td:nth-child(12) input').value) || 0;
+                totalAmount += amount;
+            });
+
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        }
+
+        function sendWhatsApp() {
+            const customerName = document.getElementById('customer_name').value.trim();
+            if (!customerName) {
+                alert('Please enter customer name first!');
+                document.getElementById('customer_name').focus();
+                return;
+            }
+
+            const orderNo = document.getElementById('order_no').value;
+            const orderDate = document.getElementById('order_date').value;
+            const phone = document.getElementById('phone').value;
+            
+            // Collect items
+            const items = [];
+            const rows = document.querySelectorAll('#itemsTableBody tr');
+            
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('input');
+                if (cells[0].value.trim() || cells[1].value.trim()) { // if size_mm or size_yard exists
+                    const size_mm = cells[0].value.trim();
+                    const size_yard = cells[1].value.trim();
+                    const size = size_mm && size_yard ? `${size_mm}mm x ${size_yard} Yard` : '';
+                    
+                    items.push({
+                        no: index + 1,
+                        size: size,
+                        qty: cells[2].value.trim() || '-',
+                        mic: cells[3].value.trim() || '37',
+                        brand: cells[4].value.trim() || 'Brand',
+                        colour: cells[5].value.trim() || 'Clear',
+                        variety: cells[6].value.trim() || 'Type',
+                        packing: cells[7].value.trim() || 'Box/Carton',
+                        printedMatter: cells[8].value.trim() || '',
+                        unitPrice: cells[9].value.trim() || '0.00',
+                        amount: cells[10].value.trim() || '0.00',
+                        notes: cells[11].value.trim() || ''
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                alert('Please add at least one item!');
+                return;
+            }
+
+            // Generate WhatsApp message
+            let message = `*Order No*  : ${orderNo}\n`;
+            message += `*Date*  : ${orderDate}\n`;
+            message += `*Party Name*  : ${customerName}\n`;
+
+            items.forEach((item, index) => {
+                message += `\nItem No ${index + 1}\n`;
+                message += `*SIZE*  : ${item.size}\n`;
+                message += `*QTY*  : ${item.qty}\n`;
+                message += `*MIC*  : ${item.mic}\n`;
+                message += `*BRAND*  : ${item.brand}\n`;
+                message += `*COLOUR*  : ${item.colour}\n`;
+                message += `*VARITY*  : ${item.variety}\n`;
+                message += `*PACKING*  : ${item.packing}\n`;
+                
+                if (item.printedMatter) {
+                    message += `*Printed Matter*  : ${item.printedMatter}\n`;
+                }
+            });
+
+            // Show in modal
+            document.getElementById('whatsappCustomer').textContent = customerName;
+            document.getElementById('whatsappMessage').value = message;
+            
+            const modal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+            modal.show();
+        }
+
+        function sendWhatsAppDirect() {
+            const message = document.getElementById('whatsappMessage').value;
+            if (!message.trim()) {
+                alert('Message is empty!');
+                return;
+            }
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappModal'));
+            modal.hide();
+            
+            // Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            alert('🚀 WhatsApp opened!\n📱 Message loaded automatically\n👥 Select contact to send');
+        }
+
+        function previewOrder() {
+            const customerName = document.getElementById('customer_name').value.trim();
+            if (!customerName) {
+                alert('Please enter customer name first!');
+                return;
+            }
+
+            // Simple preview - could be enhanced
+            const orderNo = document.getElementById('order_no').value;
+            const orderDate = document.getElementById('order_date').value;
+            const totalAmount = document.getElementById('totalAmount').textContent;
+            const totalItems = document.getElementById('totalItems').textContent;
+
+            alert(`Order Preview:\n\nOrder No: ${orderNo}\nCustomer: ${customerName}\nDate: ${orderDate}\nTotal Items: ${totalItems}\nTotal Amount: Rs. ${totalAmount}`);
+        }
+
+        function saveOrder() {
+            const form = document.getElementById('orderForm');
+            if (!form.checkValidity()) {
+                alert('Please fill all required fields!');
+                return;
+            }
+
+            const rows = document.querySelectorAll('#itemsTableBody tr');
+            if (rows.length === 0) {
+                alert('Please add at least one item!');
+                return;
+            }
+
+            // Collect form data
+            const formData = new FormData();
+            formData.append('order_no', document.getElementById('order_no').value);
+            formData.append('order_date', document.getElementById('order_date').value);
+            formData.append('customer_name', document.getElementById('customer_name').value);
+            formData.append('customer_phone', document.getElementById('phone').value);
+            formData.append('customer_address', document.getElementById('address').value);
+
+            // Collect items data
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('input');
+                
+                if (cells[0].value.trim() || cells[1].value.trim()) { // if size_mm or size_yard exists
+                    const size_mm = cells[0].value.trim();
+                    const size_yard = cells[1].value.trim();
+                    const size = size_mm && size_yard ? `${size_mm}mm x ${size_yard} Yard` : '';
+                    
+                    formData.append(`items[${index}][size]`, size);
+                    formData.append(`items[${index}][size_mm]`, size_mm);
+                    formData.append(`items[${index}][size_yard]`, size_yard);
+                    formData.append(`items[${index}][qty]`, cells[2].value.trim());
+                    formData.append(`items[${index}][micron]`, cells[3].value.trim());
+                    formData.append(`items[${index}][brand]`, cells[4].value.trim());
+                    formData.append(`items[${index}][colour]`, cells[5].value.trim());
+                    formData.append(`items[${index}][variety]`, cells[6].value.trim());
+                    formData.append(`items[${index}][packing]`, cells[7].value.trim());
+                    formData.append(`items[${index}][printed_matter]`, cells[8].value.trim());
+                    formData.append(`items[${index}][unit_price]`, cells[9].value.trim());
+                    formData.append(`items[${index}][amount]`, cells[10].value.trim());
+                    formData.append(`items[${index}][notes]`, cells[11].value.trim());
+                }
+            });
+
+            // Submit to server
+            fetch('/orders/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('✅ Order saved successfully!');
+                    window.location.href = '/orders';
+                } else {
+                    alert('❌ Error saving order!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error saving order: ' + error.message);
+            });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                addItem();
+            }
+        });
+
+        // Customer search functionality
+        function loadCustomers() {
+            fetch('/api/customers')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.customers && data.customers.length > 0) {
+                        window.allCustomers = data.customers;
+                        setupCustomerSearchDropdown();
+                    } else {
+                        window.allCustomers = [];
+                        console.log('No customers found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading customers:', error);
+                    window.allCustomers = [];
+                });
+        }
+
+        // Setup searchable dropdown functionality for customers
+        function setupCustomerSearchDropdown() {
+            const input = document.getElementById('customer_name');
+            const dropdown = document.getElementById('customerDropdown');
+            let selectedIndex = -1;
+            
+            // Show dropdown on focus
+            input.addEventListener('focus', function() {
+                showCustomerDropdown();
+                filterCustomers('');
+            });
+            
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    hideCustomerDropdown();
+                }
+            });
+            
+            // Handle input changes for search
+            input.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterCustomers(searchTerm);
+                selectedIndex = -1;
+                showCustomerDropdown();
+            });
+            
+            // Handle keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.dropdown-item:not(.d-none)');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    updateCustomerSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
+                    updateCustomerSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && items[selectedIndex]) {
+                        selectCustomer(items[selectedIndex].textContent);
+                    }
+                } else if (e.key === 'Escape') {
+                    hideCustomerDropdown();
+                }
+            });
+            
+            function showCustomerDropdown() {
+                dropdown.style.display = 'block';
+                dropdown.classList.add('show');
+            }
+            
+            function hideCustomerDropdown() {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
+                selectedIndex = -1;
+            }
+            
+            function filterCustomers(searchTerm) {
+                dropdown.innerHTML = '';
+                
+                if (window.allCustomers.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-item text-muted">No customers found</div>';
+                    return;
+                }
+                
+                const filteredCustomers = window.allCustomers.filter(customer => 
+                    customer.toLowerCase().includes(searchTerm)
+                );
+                
+                if (filteredCustomers.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-item text-muted">No matches found</div>';
+                    return;
+                }
+                
+                filteredCustomers.forEach(customer => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.style.cursor = 'pointer';
+                    item.textContent = customer;
+                    
+                    // Highlight search term
+                    if (searchTerm) {
+                        const regex = new RegExp(`(${searchTerm})`, 'gi');
+                        item.innerHTML = customer.replace(regex, '<mark>$1</mark>');
+                    }
+                    
+                    item.addEventListener('click', function() {
+                        selectCustomer(customer);
+                    });
+                    
+                    dropdown.appendChild(item);
+                });
+            }
+            
+            function updateCustomerSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+            
+            function selectCustomer(customerName) {
+                input.value = customerName;
+                hideCustomerDropdown();
+                
+                // Show success feedback
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-success position-fixed';
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 250px; opacity: 0.9;';
+                toast.innerHTML = `<i class="fas fa-check"></i> Selected: ${customerName}`;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 2000);
+            }
+        }
+
+        // Show Add Customer Modal
+        function showAddCustomerModal() {
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerPhone').value = '';
+            document.getElementById('newCustomerEmail').value = '';
+            document.getElementById('newCustomerAddress').value = '';
+            document.getElementById('newCustomerCity').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
+            modal.show();
+        }
+
+        // Add New Customer
+        function addNewCustomer() {
+            const name = document.getElementById('newCustomerName').value.trim();
+            const phone = document.getElementById('newCustomerPhone').value.trim();
+            const email = document.getElementById('newCustomerEmail').value.trim();
+            const address = document.getElementById('newCustomerAddress').value.trim();
+            const city = document.getElementById('newCustomerCity').value.trim();
+            
+            if (!name) {
+                alert('Please enter customer name!');
+                return;
+            }
+            
+            // Add to database via API
+            fetch('/api/customers/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    address: address,
+                    city: city
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add to customers list and refresh dropdown
+                    if (!window.allCustomers) {
+                        window.allCustomers = [];
+                    }
+                    window.allCustomers.push(name);
+                    window.allCustomers.sort();
+                    
+                    // Select the new customer
+                    const input = document.getElementById('customer_name');
+                    input.value = name;
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'));
+                    modal.hide();
+                    
+                    alert(`Customer "${name}" added successfully!`);
+                } else {
+                    alert('Error adding customer: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding customer. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header with Generate Bill Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Dashboard</h2>
+        <a href="{{ url_for('reports.generate_bill') }}" class="btn btn-primary">
+            <i class="fas fa-file-invoice me-2"></i>
+            Generate Bill
+        </a>
+            </div>
+
+            <!-- Stats Cards -->
+    <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="fw-bold">{{ total_jambos }}</h3>
+                                    <p class="mb-0">Total Jambos</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-film fa-2x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/jambos" class="card-footer bg-transparent text-white text-decoration-none border-0">
+                            <small><i class="fas fa-arrow-right me-1"></i>View Details</small>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="fw-bold">{{ total_orders }}</h3>
+                                    <p class="mb-0">Total Orders</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/orders" class="card-footer bg-transparent text-white text-decoration-none border-0">
+                            <small><i class="fas fa-arrow-right me-1"></i>View Details</small>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333 !important;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="fw-bold text-dark">{{ pending_orders }}</h3>
+                                    <p class="mb-0 text-dark">Pending Orders</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-clock fa-2x text-dark opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card stats-card text-white" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333 !important;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="fw-bold text-dark">{{ total_production }}</h3>
+                                    <p class="mb-0 text-dark">Production Orders</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-industry fa-2x text-dark opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/production" class="card-footer bg-transparent text-dark text-decoration-none border-0">
+                            <small><i class="fas fa-arrow-right me-1"></i>View Details</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-3 col-md-6 mb-2">
+                                    <a href="/jambos/bulk" class="btn btn-outline-warning w-100">
+                                        <i class="fas fa-layer-group me-2"></i>Bulk Add Jambos
+                                    </a>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-2">
+                                    <a href="/orders/add" class="btn btn-outline-success w-100">
+                                        <i class="fas fa-shopping-cart me-2"></i>New Order
+                                    </a>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-2">
+                                    <a href="/production" class="btn btn-outline-danger w-100">
+                                        <i class="fas fa-industry me-2"></i>Production
+                                    </a>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-2">
+                                    <a href="/jambos" class="btn btn-outline-info w-100">
+                                        <i class="fas fa-search me-2"></i>Search Jambos
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-film me-2"></i>Recent Jambos</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_jambos %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Jambo#</th>
+                                                <th>Color</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for jambo in recent_jambos %}
+                                            <tr>
+                                                <td><strong class="text-primary">#{{ jambo.jambo_no }}</strong></td>
+                                                <td><span class="badge bg-secondary">{{ jambo.colour }}</span></td>
+                                                <td class="text-success">{{ "{:,}".format(jambo.balance_yard) }} yards</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No jambos found</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Recent Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_orders %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Order#</th>
+                                                <th>Customer</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for order in recent_orders %}
+                                            <tr>
+                                                <td><strong class="text-primary">#{{ order.order_no }}</strong></td>
+                                                <td>{{ order.customer_name }}</td>
+                                                <td><span class="badge bg-warning">{{ order.status }}</span></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No orders found</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %} 

@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Jambo Rolls - Jambo Management Cloud{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 text-primary">
+                    <i class="fas fa-film me-2"></i>
+                    Jambo Rolls Inventory
+                </h1>
+                <p class="text-muted">Aap ke sab jambo rolls ka complete listing aur management</p>
+            </div>
+            <div>
+                <a href="{{ url_for('jambos.bulk_add_jambos') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Jambo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="search-container">
+            <form method="GET" action="{{ url_for('jambos.view_jambos') }}">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="search" 
+                                   value="{{ search }}" 
+                                   placeholder="Search by Jambo#, Color, Party Name, Micron..."
+                                   id="search-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                            <a href="{{ url_for('jambos.view_jambos') }}" class="btn btn-outline-light">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Results Info -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    {% if search %}
+                        Search Results: {{ jambos|length }} jambo(s) found for "{{ search }}"
+                    {% else %}
+                        All Jambos: {{ jambos|length }} total
+                    {% endif %}
+                </h5>
+            </div>
+            <div>
+                <small class="text-muted">
+                    Real-time search enabled
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Jambos Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card data-table">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Jambo#</th>
+                            <th>Date</th>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Micron</th>
+                            <th>Roll#</th>
+                            <th>Weight</th>
+                            <th>Party</th>
+                            <th>Calc Yard</th>
+                            <th>Balance</th>
+                            <th>Usage</th>
+                            <th>Extra</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if jambos %}
+                            {% for jambo in jambos %}
+                            <tr class="jambo-row">
+                                <td>
+                                    <strong class="text-primary">#{{ jambo.jambo_no }}</strong>
+                                </td>
+                                <td>{{ jambo.date }}</td>
+                                <td>
+                                    <small>{{ jambo.formatted_size }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ jambo.colour }}</span>
+                                </td>
+                                <td>{{ jambo.micron }}mic</td>
+                                <td>{{ jambo.roll_no }}</td>
+                                <td>{{ jambo.net_weight }} kg</td>
+                                <td class="text-truncate" style="max-width: 150px;">
+                                    {{ jambo.party_name }}
+                                </td>
+                                <td>{{ "{:,}".format(jambo.calculated_yard) }}</td>
+                                <td>
+                                    <span class="text-{{ 'danger' if jambo.balance_yard == 0 else 'warning' if jambo.balance_yard < 500 else 'success' }}">
+                                        <strong>{{ "{:,}".format(jambo.balance_yard) }}</strong>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-{{ 'danger' if jambo.usage_percentage > 90 else 'warning' if jambo.usage_percentage > 70 else 'success' }}" 
+                                             style="width: {{ jambo.usage_percentage }}%"></div>
+                                    </div>
+                                    <small>{{ jambo.usage_percentage }}%</small>
+                                </td>
+                                <td>
+                                    <span class="text-{{ 'success' if jambo.extra_yard > 0 else 'danger' if jambo.extra_yard < 0 else 'secondary' }}">
+                                        {{ jambo.extra_yard|int }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('edit_jambo', jambo_id=jambo.id) }}" 
+                                           class="btn btn-outline-primary" 
+                                           title="Edit Jambo">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('delete_jambo', jambo_id=jambo.id) }}" 
+                                              style="display: inline;" 
+                                              onsubmit="return confirm('Are you sure you want to delete Jambo #{{ jambo.jambo_no }}?')">
+                                            <button type="submit" 
+                                                    class="btn btn-outline-danger" 
+                                                    title="Delete Jambo">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="13" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-film fa-3x mb-3"></i>
+                                        <h5>No Jambos Found</h5>
+                                        <p>
+                                            {% if search %}
+                                                No jambos found matching "{{ search }}". Try a different search term.
+                                            {% else %}
+                                                No jambos have been added yet. Add your first jambo to get started.
+                                            {% endif %}
+                                        </p>
+                                        <a href="{{ url_for('jambos.bulk_add_jambos') }}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Add First Jambo
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+{% if jambos %}
+<div class="row mt-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card jambo-card">
+            <div class="card-body text-center">
+                <h4 class="text-success">{{ jambos|length }}</h4>
+                <p class="mb-0">Total Jambos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card jambo-card">
+            <div class="card-body text-center">
+                <h4 class="text-primary">{{ "{:,}".format(jambos|sum(attribute='balance_yard')) }}</h4>
+                <p class="mb-0">Total Balance Yards</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card jambo-card">
+            <div class="card-body text-center">
+                <h4 class="text-warning">{{ "{:,}".format(jambos|sum(attribute='net_weight')|round|int) }} kg</h4>
+                <p class="mb-0">Total Weight</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card jambo-card">
+            <div class="card-body text-center">
+                <h4 class="text-info">{{ jambos|selectattr('balance_yard', 'gt', 0)|list|length }}</h4>
+                <p class="mb-0">Available Jambos</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Real-time search functionality
+$(document).ready(function() {
+    let searchTimeout;
+    
+    $('#search-input').on('input', function() {
+        clearTimeout(searchTimeout);
+        const searchTerm = $(this).val();
+        
+        searchTimeout = setTimeout(function() {
+            if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                // Reload page with search parameter
+                const url = new URL(window.location);
+                if (searchTerm) {
+                    url.searchParams.set('search', searchTerm);
+                } else {
+                    url.searchParams.delete('search');
+                }
+                window.location.href = url.toString();
+            }
+        }, 500);
+    });
+    
+    // Add hover effects
+    $('.jambo-row').hover(
+        function() {
+            $(this).addClass('table-active');
+        },
+        function() {
+            $(this).removeClass('table-active');
+        }
+    );
+});
+
+// Display used yards
+function displayUsedYards(balance_yard, calculated_yard) {
+    if (!balance_yard || !calculated_yard) return 0;
+    
+    const used = calculated_yard - balance_yard;
+    return used > 0 ? used : 0;  // Never show negative values
+}
+
+// Format table row
+function formatTableRow(jambo) {
+    const status = jambo.status || 'ACTIVE';
+    const statusClass = status === 'CLOSED' ? 'danger' : 'success';
+    const usedYards = displayUsedYards(jambo.balance_yard, jambo.calculated_yard);
+    
+    return `
+        <tr>
+            <td>
+                <a href="#" class="text-primary fw-bold mb-1" onclick="viewJamboDetails('${jambo.jambo_no}')">
+                    #${jambo.jambo_no}
+                </a>
+            </td>
+            <td>
+                <span class="badge bg-${statusClass}">
+                    ${status}
+                </span>
+            </td>
+            <td>${jambo.date || ''}</td>
+            <td>${jambo.size_mm}mm x ${jambo.size_meter}m</td>
+            <td>
+                <span class="badge bg-secondary">
+                    ${jambo.colour}
+                </span>
+            </td>
+            <td>${jambo.micron}</td>
+            <td>
+                <span class="badge bg-info">
+                    ${jambo.roll_no || '10'}
+                </span>
+            </td>
+            <td>${jambo.net_weight}</td>
+            <td>${jambo.party_name}</td>
+            <td class="text-end fw-bold text-primary">${jambo.calculated_yard}</td>
+            <td class="text-end fw-bold ${usedYards > 0 ? 'text-warning' : ''}">${usedYards}</td>
+            <td class="text-end fw-bold ${jambo.balance_yard === 0 ? 'text-danger' : 'text-success'}">${jambo.balance_yard}</td>
+            <td>
+                ${status === 'CLOSED' ? `
+                    <button class="btn btn-sm btn-success" onclick="reopenJambo('${jambo.jambo_no}')">
+                        <i class="fas fa-lock-open"></i> Reopen
+                    </button>
+                ` : `
+                    <button class="btn btn-sm btn-danger" onclick="closeJambo('${jambo.jambo_no}')">
+                        <i class="fas fa-times-circle"></i> Close
+                    </button>
+                `}
+            </td>
+        </tr>
+    `;
+}
+
+// Load jambos data
+function loadJambosData() {
+    fetch('/api/jambos/data')  // Changed from /api/jambos/list to /api/jambos/data
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayJambos(data.jambos);
+            } else {
+                showError('Failed to load jambos: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Failed to load jambos: ' + error.message);
+        });
+}
+
+function closeJambo(jamboNo) {
+    if (!confirm(`Are you sure you want to close Jambo #${jamboNo}?`)) {
+        return;
+    }
+    
+    fetch(`/api/jambo/close/${jamboNo}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadJambos();  // Reload the list
+        } else {
+            showError('Failed to close jambo: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error closing jambo:', error);
+        showError('Failed to close jambo: ' + error.message);
+    });
+}
+
+// Reopen jambo
+function reopenJambo(jamboNo) {
+    if (!confirm(`Are you sure you want to reopen Jambo #${jamboNo}?`)) {
+        return;
+    }
+    
+    fetch(`/api/jambo/reopen/${jamboNo}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadJambos();  // Reload the list
+        } else {
+            showError('Failed to reopen jambo: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error reopening jambo:', error);
+        showError('Failed to reopen jambo: ' + error.message);
+    });
+}
+</script>
+{% endblock %} 

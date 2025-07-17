@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Jumbo Stock Report{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">JUMBO STOCK REPORT</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Colour</th>
+                    <th>Micron</th>
+                    <th>Size (mm)</th>
+                    <th>Size (Meter)</th>
+                    <th>Stock Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# Roman Urdu: Har group ke liye row bana rahe hain #}
+                {% for row in report_data %}
+                <tr>
+                    <td>{{ row.colour }}</td>
+                    <td>{{ row.micron }}</td>
+                    <td>{{ row.size_mm }}</td>
+                    <td>{{ row.size_meter }}</td>
+                    <td>
+                        {% if row.full > 0 %}{{ '%02d' % row.full }} Jambo{% endif %}
+                        {% if row.full > 0 and row.loose > 0 %} + {% endif %}
+                        {% if row.loose > 0 %}{{ '%02d' % row.loose }} Loose{% endif %}
+                        {% if row.full == 0 and row.loose == 0 %}-{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

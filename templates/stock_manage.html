@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+        }
+        .table th {
+            background: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                        <small style="font-size: 14px;">Management Cloud</small>
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                        <a class="nav-link" href="/jambos">
+                            <i class="fas fa-film"></i>
+                            Jambo Rolls
+                        </a>
+                        <a class="nav-link" href="/orders">
+                            <i class="fas fa-shopping-cart"></i>
+                            Orders
+                        </a>
+                        <a class="nav-link" href="/parties">
+                            <i class="fas fa-users"></i>
+                            Parties
+                        </a>
+                        <a class="nav-link" href="/production">
+                            <i class="fas fa-industry"></i>
+                            Production
+                        </a>
+                        <a class="nav-link" href="/reports">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports
+                        </a>
+                        <a class="nav-link active" href="/stock/manage">
+                            <i class="fas fa-boxes"></i>
+                            Item Create
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 main-content p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-boxes me-2"></i>Stock Management</h2>
+                    <button class="btn btn-primary" onclick="showAddItemModal()">
+                        <i class="fas fa-plus me-2"></i>Add New Item
+                    </button>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3 class="text-primary" id="totalItems">0</h3>
+                                <p class="text-muted mb-0">Total Items</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3 class="text-success" id="activeItems">0</h3>
+                                <p class="text-muted mb-0">Active Items</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3 class="text-info" id="totalTransactions">0</h3>
+                                <p class="text-muted mb-0">Total Transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3 class="text-warning" id="manualItems">0</h3>
+                                <p class="text-muted mb-0">Manual Items</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Items Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Stock Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Size</th>
+                                        <th>Color</th>
+                                        <th>Brand</th>
+                                        <th>Micron</th>
+                                        <th>Packing</th>
+                                        <th>Created Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockTableBody">
+                                    <!-- Items will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Add New Stock Item
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Size MM *</label>
+                                <input type="number" class="form-control" id="sizeMM" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Size Yard *</label>
+                                <input type="number" class="form-control" id="sizeYard" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Color *</label>
+                                <input type="text" class="form-control" id="color" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Brand *</label>
+                                <input type="text" class="form-control" id="brand" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Micron *</label>
+                                <input type="number" class="form-control" id="micron" value="37" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Packing (Pcs/Ctn) *</label>
+                                <input type="number" class="form-control" id="packing" value="72" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createStockItem()">
+                        <i class="fas fa-save me-2"></i>Create Item
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div class="modal fade" id="editItemModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Edit Stock Item
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editItemForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Size MM</label>
+                                <input type="number" class="form-control" id="editSizeMM" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Size Yard</label>
+                                <input type="number" class="form-control" id="editSizeYard" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Color</label>
+                                <input type="text" class="form-control" id="editColor" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Brand</label>
+                                <input type="text" class="form-control" id="editBrand" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Micron</label>
+                            <input type="number" class="form-control" id="editMicron" placeholder="Micron">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPacking" class="form-label">Packing</label>
+                            <input type="number" class="form-control" id="editPacking" placeholder="Packing">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditItem()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Transactions Modal -->
+    <div class="modal fade" id="transactionsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-history me-2"></i>Item Transactions
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="transactionsContent">
+                        <!-- Transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load stock items on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStockItems();
+        });
+
+        function loadStockItems() {
+            fetch('/stock/api/items')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayStockItems(data.items);
+                        updateSummary(data.items);
+                    } else {
+                        showToast('Error loading items: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error loading items', 'error');
+                });
+        }
+
+        function displayStockItems(items) {
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = '';
+
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><strong>${item.size_mm}mm x ${item.size_yard} Yard</strong></td>
+                    <td>${item.color}</td>
+                    <td>${item.brand}</td>
+                                            <td>${item.micron}mic</td>
+                    <td>${item.packing}</td>
+                    <td>${formatDate(item.created_date)}</td>
+                    <td>
+                        <span class="status-badge ${item.is_active ? 'status-active' : 'status-inactive'}">
+                            ${item.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1" onclick="viewTransactions(${item.id})">
+                            <i class="fas fa-history"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning me-1" onclick="editItem(${item.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateSummary(items) {
+            document.getElementById('totalItems').textContent = items.length;
+            document.getElementById('activeItems').textContent = items.filter(item => item.is_active).length;
+            
+            // Count manual items (items with manual_entry transaction)
+            const manualCount = items.length; // For now, all items are considered manual
+            document.getElementById('manualItems').textContent = manualCount;
+        }
+
+        function showAddItemModal() {
+            document.getElementById('addItemForm').reset();
+            new bootstrap.Modal(document.getElementById('addItemModal')).show();
+        }
+
+        function createStockItem() {
+            const formData = {
+                size_mm: parseInt(document.getElementById('sizeMM').value),
+                size_yard: parseInt(document.getElementById('sizeYard').value),
+                color: document.getElementById('color').value,
+                brand: document.getElementById('brand').value,
+                micron: parseInt(document.getElementById('micron').value),
+                packing: parseInt(document.getElementById('packing').value)
+            };
+
+            fetch('/stock/api/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide();
+                    loadStockItems();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error creating item', 'error');
+            });
+        }
+
+        function viewTransactions(itemId) {
+            fetch(`/stock/api/transactions/${itemId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayTransactions(data.transactions);
+                        new bootstrap.Modal(document.getElementById('transactionsModal')).show();
+                    } else {
+                        showToast('Error loading transactions: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error loading transactions', 'error');
+                });
+        }
+
+        function displayTransactions(transactions) {
+            const content = document.getElementById('transactionsContent');
+            
+            if (transactions.length === 0) {
+                content.innerHTML = '<p class="text-muted">No transactions found.</p>';
+                return;
+            }
+
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Date</th><th>Type</th><th>Quantity</th><th>Reference</th></tr></thead><tbody>';
+            
+            transactions.forEach(txn => {
+                html += `
+                    <tr>
+                        <td>${formatDate(txn.date)}</td>
+                        <td><span class="badge bg-${getTransactionTypeColor(txn.type)}">${txn.type}</span></td>
+                        <td>${txn.quantity}</td>
+                        <td>${txn.reference}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            content.innerHTML = html;
+        }
+
+        function getTransactionTypeColor(type) {
+            switch(type) {
+                case 'production': return 'success';
+                case 'sale': return 'danger';
+                case 'manual_entry': return 'info';
+                default: return 'secondary';
+            }
+        }
+
+        function editItem(itemId) {
+            // Fetch item details to populate the edit form
+            fetch(`/stock/api/items/${itemId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('editItemId').value = data.item.id;
+                        document.getElementById('editSizeMM').value = data.item.size_mm;
+                        document.getElementById('editSizeYard').value = data.item.size_yard;
+                        document.getElementById('editColor').value = data.item.color;
+                        document.getElementById('editBrand').value = data.item.brand;
+                        document.getElementById('editMicron').value = data.item.micron;
+                        document.getElementById('editPacking').value = data.item.packing ? data.item.packing : '';
+                        new bootstrap.Modal(document.getElementById('editItemModal')).show();
+                    } else {
+                        showToast('Error loading item for editing: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error loading item for editing', 'error');
+                });
+        }
+
+        function saveEditItem() {
+            const itemId = document.getElementById('editItemId').value;
+            const formData = {
+                size_mm: parseInt(document.getElementById('editSizeMM').value),
+                size_yard: parseInt(document.getElementById('editSizeYard').value),
+                color: document.getElementById('editColor').value,
+                brand: document.getElementById('editBrand').value,
+                micron: parseInt(document.getElementById('editMicron').value),
+                packing: parseInt(document.getElementById('editPacking').value) || 72
+            };
+
+            fetch(`/stock/api/update/${itemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editItemModal')).hide();
+                    loadStockItems();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error saving item changes', 'error');
+            });
+        }
+
+        function deleteItem(itemId) {
+            if (!confirm('Kya aap ye item delete karna chahte hain?')) {
+                return;
+            }
+
+            fetch(`/stock/api/delete/${itemId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    loadStockItems();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error deleting item', 'error');
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>${message}</span>
+                    <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

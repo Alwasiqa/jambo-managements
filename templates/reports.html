@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Jambo Management Cloud{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-chart-bar text-primary"></i>
+            Reports
+        </h2>
+    </div>
+
+    <!-- Reports Grid -->
+    <div class="row g-4">
+        <!-- Bills -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-file-invoice text-primary"></i>
+                        Bills
+                    </h5>
+                    <p class="card-text">View all bills, search by bill number or customer name, and print bills.</p>
+                    <a href="{{ url_for('reports.list_bills') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        View Bills
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jambo Ledger -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-book text-primary"></i>
+                        Jambo Ledger
+                    </h5>
+                    <p class="card-text">View complete ledger for any jambo with all transactions and running balance.</p>
+                    <a href="{{ url_for('reports.jambo_ledger') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        View Jambo Ledger
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Report -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-boxes text-warning"></i>
+                        Stock Report
+                    </h5>
+                    <p class="card-text">Check current stock levels, low stock alerts and inventory valuation.</p>
+                    <a href="{{ url_for('reports.stock_report') }}" class="btn btn-warning">
+                        <i class="fas fa-arrow-right"></i>
+                        View Stock Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production Report -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-industry text-success"></i>
+                        Production Report
+                    </h5>
+                    <p class="card-text">View production statistics, completed orders and efficiency metrics.</p>
+                    <a href="#" class="btn btn-success">
+                        <i class="fas fa-arrow-right"></i>
+                        View Production Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales & Purchase Reports -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-exchange-alt text-info"></i>
+                        Sales & Purchase Reports
+                    </h5>
+                    <p class="card-text">Dekhein sales aur purchase ki detail reports, alag-alag customers aur suppliers ke hisaab se.</p>
+                    <a href="{{ url_for('reports.sales_purchase_reports') }}" class="btn btn-info">
+                        <i class="fas fa-arrow-right"></i>
+                        View Sales & Purchase Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jumbo Stock Report -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-warehouse text-secondary"></i>
+                        Jumbo Stock Report
+                    </h5>
+                    <p class="card-text">Dekhein kitne full unused aur loose (used) jumbo rolls har group mai hain.</p>
+                    <a href="{{ url_for('reports.jumbo_stock_report') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        View Jumbo Stock Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

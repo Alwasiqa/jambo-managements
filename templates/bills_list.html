@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><i class="fas fa-file-invoice"></i> Bills</h2>
+        <div>
+            <!-- Roman Urdu: Find Bill button hata diya -->
+            <a href="{{ url_for('reports.generate_bill') }}" class="btn btn-success">+ New Bill</a>
+        </div>
+    </div>
+    <!-- Roman Urdu: Real-time search input add kiya -->
+    <div class="mb-3">
+        <input type="text" id="billSearchInput" class="form-control" placeholder="Search Bill No, Date, Customer...">
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-bordered table-hover" id="billsTable">
+                <thead>
+                    <tr>
+                        <th>Bill No</th>
+                        <th>Date</th>
+                        <th>Customer Name</th>
+                        <th>QTY</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                    <tr>
+                        <td>{{ bill.bill_no }}</td>
+                        <td>{{ bill.date }}</td>
+                        <td>{{ bill.customer_name }}</td>
+                        <td>{{ bill.qty_display }}</td>
+                        <td>
+                            <a href="{{ url_for('reports.view_bill', bill_no=bill.bill_no) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button class="btn btn-sm btn-primary" onclick="printBill('{{ bill.bill_no }}')">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            <a href="{{ url_for('reports.edit_bill', bill_no=bill.bill_no) }}" class="btn btn-sm btn-warning text-white">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBill('{{ bill.bill_no }}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Roman Urdu: Real-time search function
+const searchInput = document.getElementById('billSearchInput');
+const table = document.getElementById('billsTable');
+searchInput.addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
+
+// Print bill
+function printBill(billNo) {
+    window.open("{{ url_for('reports.view_bill', bill_no='') }}" + billNo, '_blank');
+}
+// Delete bill
+function deleteBill(billNo) {
+    if (confirm('Are you sure you want to delete Bill ' + billNo + '?')) {
+        window.location.href = '/reports/bills/delete/' + billNo;
+    }
+}
+</script>
+{% endblock %} 

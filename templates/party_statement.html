@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ party.name }} - Statement - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+        
+        .balance-receivable {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .balance-payable {
+            color: #198754;
+            font-weight: bold;
+        }
+        
+        .balance-clear {
+            color: #6c757d;
+        }
+        
+        .statement-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        @media print {
+            .sidebar, .topbar, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar no-print">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <a class="nav-link" href="/jambos">
+                <i class="fas fa-film"></i>
+                Jambo Rolls
+            </a>
+            
+            <a class="nav-link" href="/orders">
+                <i class="fas fa-shopping-cart"></i>
+                Customer Orders
+            </a>
+            
+            <a class="nav-link active" href="/parties">
+                <i class="fas fa-users"></i>
+                Parties Management
+            </a>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px;">
+            
+            <a class="nav-link" href="/production">
+                <i class="fas fa-cogs"></i>
+                Production
+            </a>
+            
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center no-print">
+            <div>
+                <h5 class="mb-0">📊 Party Statement: {{ party.name }}</h5>
+                <small class="text-muted">Account details aur transaction history</small>
+            </div>
+            <div>
+                <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <a href="/parties" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Parties
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Party Info Header -->
+            <div class="card mb-4">
+                <div class="card-header statement-header">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="mb-1">{{ party.name }}</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {% if party.phone %}
+                                    <p class="mb-1"><i class="fas fa-phone"></i> {{ party.phone }}</p>
+                                    {% endif %}
+                                    {% if party.email %}
+                                    <p class="mb-1"><i class="fas fa-envelope"></i> {{ party.email }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if party.address %}
+                                    <p class="mb-1"><i class="fas fa-map-marker-alt"></i> {{ party.address }}</p>
+                                    {% endif %}
+                                    {% if party.city %}
+                                    <p class="mb-1"><i class="fas fa-city"></i> {{ party.city }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-{% if party.party_type == 'customer' %}primary{% else %}warning{% endif %} fs-6 mb-2">
+                                {% if party.party_type == 'customer' %}
+                                <i class="fas fa-user"></i> Customer
+                                {% else %}
+                                <i class="fas fa-truck"></i> Supplier
+                                {% endif %}
+                            </span>
+                            <h3 class="mb-0">{{ party.formatted_balance }}</h3>
+                            <small>{{ party.account_type }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Summary -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Opening Balance</h6>
+                            <h4>₨{{ "{:,.0f}".format(party.opening_balance) }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Current Balance</h6>
+                            <h4 class="balance-{{ party.balance_status }}">{{ party.formatted_balance }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Total Transactions</h6>
+                            <h4>{{ (jambos|length) + (orders|length) }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Member Since</h6>
+                            <h5>{{ party.created_date }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            {% if party.party_type == 'supplier' and jambos %}
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-film"></i> Jambo Purchases 
+                        <span class="badge bg-dark ms-2">{{ jambos|length }} Records</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Jambo #</th>
+                                    <th>Size</th>
+                                    <th>Colour</th>
+                                    <th>Weight (KG)</th>
+                                    <th>Rate/KG</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for jambo in jambos %}
+                                <tr>
+                                    <td>{{ jambo.date }}</td>
+                                    <td><strong>#{{ jambo.jambo_no }}</strong></td>
+                                    <td>{{ jambo.formatted_size }}</td>
+                                    <td><span class="badge bg-secondary">{{ jambo.colour }}</span></td>
+                                    <td>{{ jambo.net_weight }}</td>
+                                    <td>₨{{ jambo.rate_kg }}</td>
+                                    <td><strong>₨{{ "{:,.0f}".format(jambo.amount) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="6" class="text-end">Total Amount:</th>
+                                    <th>₨{{ "{:,.0f}".format(jambos|sum(attribute='amount')) }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if party.party_type == 'customer' and orders %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-shopping-cart"></i> Customer Orders 
+                        <span class="badge bg-light text-dark ms-2">{{ orders|length }} Records</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Order Date</th>
+                                    <th>Order #</th>
+                                    <th>Items</th>
+                                    <th>Status</th>
+                                    <th>Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.order_date }}</td>
+                                    <td><strong>#{{ order.order_no }}</strong></td>
+                                    <td>{{ order.items_count }} items</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'Completed' %}success{% else %}warning{% endif %}">
+                                            {{ order.status }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ order.formatted_amount }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="4" class="text-end">Total Amount:</th>
+                                    <th>₨{{ "{:,.0f}".format(orders|sum(attribute='total_amount')) }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not jambos and not orders %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Transactions Found</h5>
+                    <p class="text-muted">
+                        {% if party.party_type == 'customer' %}
+                        Is customer ka koi order nahi mila
+                        {% else %}
+                        Is supplier se koi jambo purchase nahi kiya
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Notes -->
+            {% if party.notes %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-sticky-note"></i> Notes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ party.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

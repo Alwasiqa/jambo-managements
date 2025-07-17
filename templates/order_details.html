@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-file-alt"></i>
+            Order Details #{{ order.order_no }}
+        </h2>
+        <div>
+            <!-- Generate Bill button hata diya -->
+            <a href="{{ url_for('orders.edit_order', order_no=order.order_no) }}" class="btn btn-secondary">
+                <i class="fas fa-edit"></i>
+                Edit Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Rest of the template content -->
+    <div class="container">
+        
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/orders" class="btn back-btn">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                    </a>
+                    <button class="btn whatsapp-btn" onclick="sendWhatsApp('{{ order.order_no }}', '{{ order.customer_name|replace("'", "\\'") }}')">
+                        <i class="fab fa-whatsapp me-2"></i>Send WhatsApp
+                    </button>
+                    <button class="btn print-btn" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Order
+                    </button>
+                    <a href="/orders/edit/{{ order.order_no }}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit"></i>
+                        Edit Order
+                    </a>
+                    <button class="btn delete-btn" onclick="confirmDeleteOrder('{{ order.order_no }}')">
+                        <i class="fas fa-trash me-2"></i>Delete Order
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information aur Order Summary ko card/box style mein kar rahe hain -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                    <h4 class="mb-4">
+                        <i class="fas fa-user text-primary me-2"></i>Customer Information
+                    </h4>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="field-label">Customer Name</div>
+                            <div class="field-value h5">{{ order.customer_name }}</div>
+                        </div>
+                        {% if order.customer_phone %}
+                        <div class="col-12 mb-3">
+                            <div class="field-label">Phone Number</div>
+                            <div class="field-value">
+                                <i class="fas fa-phone text-success me-2"></i>{{ order.customer_phone }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if order.customer_address %}
+                        <div class="col-12 mb-3">
+                            <div class="field-label">Address</div>
+                            <div class="field-value">{{ order.customer_address }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                    <h4 class="mb-4">
+                        <i class="fas fa-info-circle text-info me-2"></i>Order Summary
+                    </h4>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="field-label">Order Number</div>
+                            <div class="field-value h5">{{ order.order_no }}</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="field-label">Order Date</div>
+                            <div class="field-value">{{ order.order_date }}</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="field-label">Total Items</div>
+                            <div class="field-value">{{ items_count }} Items</div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="field-label">Total Amount</div>
+                            <div class="field-value h4 text-success">
+                                Rs. {{ "{:,.0f}".format(order.total_amount|safe_float) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Order Items ko bhi card/box style mein kar rahe hain -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-list text-warning me-2"></i>Order Items ({{ items_count }})
+                    </h4>
+                    {% for item in items %}
+                    <div class="item-card {{ 'closed-item' if item.is_closed else 'active-item' }} mb-3 p-3 rounded-3 border" style="background: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                        <div class="row align-items-center">
+                            <div class="col-md-1">
+                                <div class="text-center">
+                                    <div class="badge bg-primary">#{{ loop.index }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="field-label">Size</div>
+                                <div class="field-value h6">
+                                    {% if item.size and 'mm' in item.size and 'Yard' in item.size %}
+                                        {{ item.size }}
+                                    {% else %}
+                                        {{ item.size }}
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">{{ item.colour }} {{ item.brand }} {{ item.micron }}mic</small>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="field-label">Quantity</div>
+                                <div class="field-value text-primary font-weight-bold">{{ item.qty }}</div>
+                                {% if item.required_pieces > 0 %}
+                                <small class="text-muted">{{ item.cartons }} Ctn × {{ item.pieces_per_carton }} = {{ item.required_pieces }} Pcs</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-1">
+                                <div class="field-label">Micron</div>
+                                <div class="field-value">{{ item.micron }}</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="field-label">Colour</div>
+                                <div class="field-value">{{ item.colour }}</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="field-label">Brand & Variety</div>
+                                <div class="field-value">
+                                    <div>{{ item.brand }}</div>
+                                    <small class="text-muted">{{ item.variety }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="field-label">Amount</div>
+                                <div class="field-value text-success h6">
+                                    Rs. {{ "{:,.0f}".format(item.amount|safe_float) }}
+                                </div>
+                                {% if item.unit_price > 0 %}
+                                <small class="text-muted">@ Rs. {{ "{:.2f}".format(item.unit_price|safe_float) }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-1">
+                                <div class="field-label">Status</div>
+                                <div class="field-value">
+                                    {% if item.is_closed %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>CLOSED
+                                        </span>
+                                        <small class="text-muted d-block">{{ item.closed_date }}</small>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>ACTIVE
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="field-label">Actions</div>
+                                <div class="field-value">
+                                    {% if item.is_closed %}
+                                        <button class="btn btn-sm btn-success item-reopen-btn" 
+                                                data-order-no="{{ order.order_no }}" 
+                                                data-item-id="{{ item.item_id }}" 
+                                                data-item-size="{{ item.size }}">
+                                            <i class="fas fa-unlock me-1"></i>Reopen
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-danger item-close-btn" 
+                                                data-order-no="{{ order.order_no }}" 
+                                                data-item-id="{{ item.item_id }}" 
+                                                data-item-size="{{ item.size }}">
+                                            <i class="fas fa-lock me-1"></i>Close
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if item.printed_matter and item.printed_matter.strip() %}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="field-label">Printed Matter</div>
+                                <div class="field-value text-info">
+                                    <i class="fas fa-print me-2"></i>{{ item.printed_matter }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.notes and item.notes.strip() %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="field-label">Notes</div>
+                                <div class="field-value text-muted">{{ item.notes }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Total Summary -->
+                    <div class="row mt-4">
+                        <div class="col-md-8"></div>
+                        <div class="col-md-4">
+                            <div class="border-top pt-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total Amount:</strong>
+                                    <strong class="text-success h5">
+                                        Rs. {{ "{:,.0f}".format(order.total_amount|safe_float) }}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // WhatsApp functionality
+        function sendWhatsApp(orderNo, customerName) {
+            fetch(`/whatsapp/order/${orderNo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    // Show WhatsApp modal
+                    showWhatsAppModal(data.message, customerName, data.phone);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error generating WhatsApp message');
+                });
+        }
+        
+        function showWhatsAppModal(message, customer, phone) {
+            // Create modal HTML
+            const modalHTML = `
+                <div class="modal fade" id="whatsappModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background: #25D366; color: white;">
+                                <h5 class="modal-title">
+                                    <i class="fab fa-whatsapp"></i> Send Order via WhatsApp
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Customer:</strong> ${customer}</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message Preview:</label>
+                                    <textarea class="form-control" id="whatsappMessage" rows="15" style="font-family: monospace;">${message}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background: #25D366; color: white;" onclick="sendWhatsAppDirect()">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('whatsappModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+            modal.show();
+        }
+        
+        function sendWhatsAppDirect() {
+            const message = document.getElementById('whatsappMessage').value;
+            if (!message.trim()) {
+                alert('Message is empty!');
+                return;
+            }
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappModal'));
+            modal.hide();
+            
+            // Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            alert('🚀 WhatsApp opened!\n📱 Message loaded automatically\n👥 Select contact to send');
+        }
+        
+        // Delete Order Function
+        function confirmDeleteOrder(orderNo) {
+            // Create confirmation modal
+            const modalHTML = `
+                <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-exclamation-triangle"></i> Delete Order Confirmation
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <i class="fas fa-trash-alt text-danger" style="font-size: 48px; margin-bottom: 20px;"></i>
+                                    <h4>Are you sure?</h4>
+                                    <p class="mb-3">
+                                        <strong>Order ${orderNo}</strong> delete karna chahte hain?
+                                    </p>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Warning:</strong> Yeh order aur saare items permanently delete ho jayenge!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="deleteOrderNow('${orderNo}')">
+                                    <i class="fas fa-trash"></i> Yes, Delete Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('deleteConfirmModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
+        }
+        
+        function deleteOrderNow(orderNo) {
+            // Show loading
+            const modal = document.getElementById('deleteConfirmModal');
+            const modalBody = modal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Deleting...</span>
+                    </div>
+                    <p class="mt-3">Order delete ho raha hai...</p>
+                </div>
+            `;
+            
+            // Make delete request
+            fetch(`/orders/delete/${orderNo}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                modal.hide();
+                
+                if (data.success) {
+                    // Success message
+                    alert(data.message);
+                    // Redirect to orders list
+                    window.location.href = '/orders';
+                } else {
+                    // Error message
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                modal.hide();
+                alert('❌ Delete karne mein error aya hai!');
+            });
+        }
+
+        // Close Item Function
+        function closeOrderItem(orderNo, itemId, itemSize) {
+            const confirmMessage = `🔒 CLOSE ITEM CONFIRMATION\\n\\n` +
+                                 `Order: ${orderNo}\\n` +
+                                 `Item: ${itemSize}\\n\\n` +
+                                 `⚠️ WARNING: Item close karne se:\\n` +
+                                 `• Production mein show nahi hoga\\n` +
+                                 `• Smart Production mein available nahi hoga\\n\\n` +
+                                 `Kya aap sure hain?`;
+
+            if (confirm(confirmMessage)) {
+                fetch('/api/order-item/close', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_no: orderNo,
+                        item_id: parseInt(itemId),
+                        reason: 'Manual Close'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`✅ ${data.message}`);
+                        location.reload(); // Refresh page to show updated status
+                    } else {
+                        alert(`❌ Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Network error occurred!');
+                });
+            }
+        }
+
+        // Reopen Item Function
+        function reopenOrderItem(orderNo, itemId, itemSize) {
+            const confirmMessage = `🔓 REOPEN ITEM CONFIRMATION\\n\\n` +
+                                 `Order: ${orderNo}\\n` +
+                                 `Item: ${itemSize}\\n\\n` +
+                                 `✅ Reopen karne se:\\n` +
+                                 `• Production mein show hoga\\n` +
+                                 `• Smart Production mein available hoga\\n\\n` +
+                                 `Kya aap sure hain?`;
+
+            if (confirm(confirmMessage)) {
+                fetch('/api/order-item/reopen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_no: orderNo,
+                        item_id: parseInt(itemId)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`✅ ${data.message}`);
+                        location.reload(); // Refresh page to show updated status
+                    } else {
+                        alert(`❌ Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Network error occurred!');
+                });
+            }
+        }
+
+        // Event listeners for item close/reopen buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close button listeners
+            document.querySelectorAll('.item-close-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderNo = this.getAttribute('data-order-no');
+                    const itemId = this.getAttribute('data-item-id');
+                    const itemSize = this.getAttribute('data-item-size');
+                    closeOrderItem(orderNo, itemId, itemSize);
+                });
+            });
+
+            // Reopen button listeners
+            document.querySelectorAll('.item-reopen-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderNo = this.getAttribute('data-order-no');
+                    const itemId = this.getAttribute('data-item-id');
+                    const itemSize = this.getAttribute('data-item-size');
+                    reopenOrderItem(orderNo, itemId, itemSize);
+                });
+            });
+        });
+        
+        // Print styles
+        const printStyles = `
+            @media print {
+                .back-btn, .whatsapp-btn, .print-btn, .edit-btn, .delete-btn { display: none !important; }
+                .order-header { background: #2c3e50 !important; -webkit-print-color-adjust: exact; }
+                .order-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+                body { background: white !important; }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = printStyles;
+        document.head.appendChild(styleSheet);
+    </script>
+</div>
+{% endblock %} 

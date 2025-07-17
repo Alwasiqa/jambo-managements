@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Report - Jambo Management Cloud{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-boxes text-primary"></i>
+            Stock Report
+        </h2>
+        <div>
+            <button class="btn btn-primary me-2" onclick="showSearchModal()">
+                <i class="fas fa-search"></i> Find Item
+            </button>
+            <button class="btn btn-info me-2" onclick="exportExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            <button class="btn btn-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Size (mm)</label>
+                        <select class="form-select" id="sizeFilter">
+                            <option value="">All Sizes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <select class="form-select" id="colorFilter">
+                            <option value="">All Colors</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <select class="form-select" id="brandFilter">
+                            <option value="">All Brands</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Micron</label>
+                        <select class="form-select" id="micronFilter">
+                            <option value="">All Microns</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item Description</th>
+                            <th style="width: 120px;" class="text-end">Production</th>
+                            <th style="width: 120px;" class="text-end">Sales</th>
+                            <th style="width: 120px;" class="text-end">Balance</th>
+                            <th style="width: 100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- Stock items will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-search"></i>
+                    Find Item
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="form-label">Search Item</label>
+                    <input type="text" class="form-control" id="itemSearch" 
+                           placeholder="Type item description (e.g. 63mm Clear Swift 37mic)">
+                </div>
+                <div id="searchResults" class="list-group">
+                    <!-- Search results will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Item Details Modal -->
+<div class="modal fade" id="itemDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i>
+                    Item Ledger
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Item Info -->
+                <div class="alert alert-info mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="alert-heading mb-2" id="itemDescription"></h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Size:</strong> <span id="itemSize"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Color:</strong> <span id="itemColor"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Brand:</strong> <span id="itemBrand"></span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <strong>Micron:</strong> <span id="itemMicron"></span>
+                                <strong class="ms-3">Packing:</strong> <span id="itemPacking"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h5 class="mb-2">Current Balance</h5>
+                            <div id="balanceDisplay">
+                                <!-- Balance will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Party Name</th>
+                                <th>Type</th>
+                                <th class="text-end">Pcs In</th>
+                                <th class="text-end">Pcs Out</th>
+                                <th class="text-end">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <!-- Transactions will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize everything when document is ready
+$(document).ready(function() {
+    loadFilters();
+    loadStockItems();
+    
+    // Initialize search
+    $('#itemSearch').on('input', function() {
+        const query = $(this).val().trim();
+        if (query.length >= 2) {
+            searchItems(query);
+        } else {
+            $('#searchResults').empty();
+        }
+    });
+});
+
+// Load filters
+function loadFilters() {
+    $.get('/reports/stock/filters')
+        .done(function(response) {
+            if (response.success) {
+                // Load size filter
+                const sizeFilter = $('#sizeFilter');
+                response.sizes.forEach(size => {
+                    sizeFilter.append(`<option value="${size}">${size}mm</option>`);
+                });
+                
+                // Load color filter
+                const colorFilter = $('#colorFilter');
+                response.colors.forEach(color => {
+                    colorFilter.append(`<option value="${color}">${color}</option>`);
+                });
+                
+                // Load brand filter
+                const brandFilter = $('#brandFilter');
+                response.brands.forEach(brand => {
+                    brandFilter.append(`<option value="${brand}">${brand}</option>`);
+                });
+                
+                // Load micron filter
+                const micronFilter = $('#micronFilter');
+                response.microns.forEach(micron => {
+                    micronFilter.append(`<option value="${micron}">${micron}</option>`);
+                });
+            }
+        });
+}
+
+// Load stock items
+function loadStockItems() {
+    const filters = {
+        size_mm: $('#sizeFilter').val(),
+        color: $('#colorFilter').val(),
+        brand: $('#brandFilter').val(),
+        micron: $('#micronFilter').val()
+    };
+    
+    $.get('/reports/stock/items', { filters: JSON.stringify(filters) })
+        .done(function(response) {
+            if (response.success) {
+                const tbody = $('#stockTableBody');
+                tbody.empty();
+                
+                response.items.forEach(item => {
+                    const description = `${item.size_mm}mm x ${item.size_yard} Yard ${item.color} ${item.brand} ${item.micron}mic`;
+                    const sales = item.sales || 0; // Roman Urdu: Ab sales backend se aa rahi hai
+                    const balance = item.production - sales;
+                    tbody.append(`
+                        <tr>
+                            <td>${description}</td>
+                            <td class="text-end">${item.production}</td>
+                            <td class="text-end">${sales}</td>
+                            <td class="text-end">${balance}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewDetails('${item.size_mm}', '${item.size_yard}', '${item.color}', '${item.brand}', '${item.micron}')">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+        });
+}
+
+// Show search modal
+function showSearchModal() {
+    $('#itemSearch').val('');
+    $('#searchResults').empty();
+    $('#searchModal').modal('show');
+    setTimeout(() => $('#itemSearch').focus(), 500);
+}
+
+// Search items
+function searchItems(query) {
+    $.get('/reports/stock/search', { query: query })
+        .done(function(response) {
+            if (response.success) {
+                const results = $('#searchResults');
+                results.empty();
+                
+                if (response.items.length === 0) {
+                    results.append(`
+                        <div class="list-group-item text-muted">
+                            No items found
+                        </div>
+                    `);
+                    return;
+                }
+                
+                response.items.forEach(item => {
+                    results.append(`
+                        <a href="#" class="list-group-item list-group-item-action" 
+                           onclick="viewDetails('${item.size_mm}', '${item.size_yard}', '${item.color}', '${item.brand}', '${item.micron}'); $('#searchModal').modal('hide');">
+                            ${item.description}
+                            <small class="text-muted d-block">
+                                Production: ${item.production} pcs
+                            </small>
+                        </a>
+                    `);
+                });
+            }
+        });
+}
+
+// Format balance display
+function formatBalance(pieces, packing) {
+    if (!packing) return pieces + ' Pcs';
+    
+    const cartons = Math.floor(pieces / packing);
+    const loose = pieces % packing;
+    
+    let display = '';
+    if (cartons > 0) {
+        display += cartons + ' Ctn';
+    }
+    if (loose > 0) {
+        if (display) display += ' + ';
+        display += loose + ' Pcs';
+    }
+    return display || '0 Pcs';
+}
+
+// Format quantity as cartons + loose
+function formatQuantity(quantity, packingSize) {
+    if (!packingSize) return `${quantity} Pcs`;
+    
+    const cartons = Math.floor(quantity / packingSize);
+    const loose = quantity % packingSize;
+    
+    if (cartons > 0 && loose > 0) {
+        return `${cartons} Ctn + ${loose} Pcs`;
+    } else if (cartons > 0) {
+        return `${cartons} Ctn`;
+    } else {
+        return `${loose} Pcs`;
+    }
+}
+
+// View item details
+function viewDetails(size_mm, size_yard, color, brand, micron) {
+    const itemId = `${size_mm}-${size_yard}-${color}-${brand}-${micron}`;
+    $.get(`/reports/stock/items/${itemId}/ledger`)
+        .done(function(response) {
+            if (response.success) {
+                // Update item info
+                $('#itemDescription').text(
+                    `${size_mm}mm x ${size_yard} Yard ${color} ${brand} ${micron}mic`
+                );
+                $('#itemSize').text(`${size_mm}mm x ${size_yard} Yard`);
+                $('#itemColor').text(color);
+                $('#itemBrand').text(brand);
+                $('#itemMicron').text(`${micron}mic`);
+                $('#itemPacking').text(response.packing_size ? `${response.packing_size} Pcs/Ctn` : '-');
+                
+                // Update balance display with both formats
+                const currentBalance = response.current_balance;
+                const cartons = Math.floor(currentBalance / response.packing_size);
+                const loose = currentBalance % response.packing_size;
+                const cartonDisplay = response.packing_size ? 
+                    `${cartons} Ctn + ${loose} Pcs` : 
+                    `${currentBalance} Pcs`;
+                
+                $('#balanceDisplay').html(`
+                    <h3 class="mb-0">${currentBalance} Pcs</h3>
+                    <h5 class="text-muted mb-0"><strong>${cartonDisplay}</strong></h5>
+                `);
+                
+                // Update transactions table
+                const tbody = $('#transactionsTableBody');
+                tbody.empty();
+                
+                response.transactions.forEach(tx => {
+                    const pcsIn = tx.transaction_type === 'production' ? tx.quantity : 0;
+                    const pcsOut = tx.transaction_type === 'sale' ? tx.quantity : 0;
+                    
+                    tbody.append(`
+                        <tr>
+                            <td>${formatDate(tx.transaction_date)}</td>
+                            <td>${tx.reference_id}</td>
+                            <td>${tx.party_name}</td>
+                            <td>${tx.transaction_type === 'production' ? 'Production' : 'Sale'}</td>
+                            <td class="text-end">${pcsIn > 0 ? pcsIn : '-'}</td>
+                            <td class="text-end">${pcsOut > 0 ? pcsOut : '-'}</td>
+                            <td class="text-end">${tx.running_balance}</td>
+                        </tr>
+                    `);
+                });
+                
+                // Show modal
+                $('#itemDetailsModal').modal('show');
+            }
+        });
+}
+
+// Export to Excel
+function exportExcel() {
+    const filters = {
+        size_mm: $('#sizeFilter').val(),
+        color: $('#colorFilter').val(),
+        brand: $('#brandFilter').val(),
+        micron: $('#micronFilter').val()
+    };
+    
+    window.location.href = `/reports/stock/export?filters=${JSON.stringify(filters)}`;
+}
+
+// Format date
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB');  // DD/MM/YYYY format
+}
+
+// Handle filter changes
+$('#sizeFilter, #colorFilter, #brandFilter, #micronFilter').on('change', function() {
+    loadStockItems();
+});
+</script>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        border: 1px solid #dee2e6;
+    }
+    
+    .table th {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Management - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+        
+        /* Production System Headers */
+        .production-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .production-type-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .production-type-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .order-production { border-left: 5px solid #e74c3c; }
+        .jambo-production { border-left: 5px solid #3498db; }
+        .independent-production { border-left: 5px solid #f39c12; }
+        
+        .production-btn {
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .production-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-order { background: #e74c3c; color: white; }
+        .btn-jambo { background: #3498db; color: white; }
+        .btn-independent { background: #f39c12; color: white; }
+        .btn-reports { background: #17a2b8; color: white; }
+        .btn-update { background: #ffc107; color: #212529; }
+        .btn-delete { background: #6c757d; color: white; }
+        
+        /* Production Table */
+        .production-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .production-table th {
+            background-color: #495057;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 12px;
+        }
+        
+        .production-table td {
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+        }
+        
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-in-progress { color: #17a2b8; font-weight: bold; }
+        .status-completed { color: #28a745; font-weight: bold; }
+        
+        /* Smart Production Modal */
+        .smart-production-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .production-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-order { border-left: 4px solid #3498db; }
+        .card-jambo { border-left: 4px solid #e67e22; }
+        .card-calculator { border-left: 4px solid #27ae60; }
+        
+        .auto-filter-info {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .selection-display {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #6c757d;
+        }
+        
+        .calculation-results {
+            background: #d5f4e6;
+            border: 1px solid #c3e6c3;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .calculation-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+
+        /* Remove number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls Dropdown -->
+            <a class="nav-link" href="/jambos">
+                <i class="fas fa-film"></i>
+                Jambo Rolls
+            </a>
+            
+            <!-- Customer Orders Dropdown -->
+            <a class="nav-link" href="/orders">
+                <i class="fas fa-shopping-cart"></i>
+                Customer Orders
+            </a>
+            
+            <!-- Production - Active -->
+            <a class="nav-link active" href="/production">
+                <i class="fas fa-industry"></i>
+                Production
+            </a>
+            
+            <!-- Parties -->
+            <a class="nav-link" href="/parties">
+                <i class="fas fa-users"></i>
+                Parties
+            </a>
+            
+            <!-- Reports -->
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            
+            <!-- Settings -->
+            <a class="nav-link" href="/settings">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-outline-primary mobile-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2">🏭 Production Management</h5>
+            </div>
+            <div>
+                <span class="text-muted">{{ current_user }}</span>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Production Header -->
+            <div class="production-header p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="mb-2">🏭 Production Management System</h2>
+                        <p class="mb-0 opacity-75">Smart Production • Auto-Filtering • Order Integration • Material Optimization</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="bg-dark bg-opacity-25 rounded p-3">
+                            <h6 class="text-warning mb-1">SYSTEM STATUS</h6>
+                            <div class="text-success fw-bold">🟢 AUTO-FILTERED</div>
+                            <small class="opacity-75">Real-time production ready</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production Type Cards -->
+            <div class="row">
+                <!-- Order Production -->
+                <div class="col-md-4">
+                    <div class="card production-type-card order-production">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger">
+                                <i class="fas fa-clipboard-list me-2"></i>Order Production
+                            </h5>
+                            <p class="card-text">Smart production from customer orders with auto-filtering of closed items.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-check-circle text-success me-1"></i>Auto-filtered orders<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Jambo matching<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Smart calculations
+                                </small>
+                            </div>
+                            <button class="btn btn-danger w-100" onclick="openOrderProduction()">
+                                <i class="fas fa-play me-2"></i>Start Order Production
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jambo Production -->
+                <div class="col-md-4">
+                    <div class="card production-type-card jambo-production">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <i class="fas fa-film me-2"></i>Jambo Production
+                            </h5>
+                            <p class="card-text">Direct production from jambo rolls with order matching capabilities.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-check-circle text-success me-1"></i>Direct Jambo Selection<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Order Matching<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Material Optimization
+                                </small>
+                            </div>
+                            <a href="/production/jambo" class="btn btn-primary w-100">
+                                <i class="fas fa-play me-2"></i>Start Jambo Production
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Independent Production -->
+                <div class="col-md-4">
+                    <div class="card production-type-card independent-production">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">
+                                <i class="fas fa-bolt me-2"></i>Independent Production
+                            </h5>
+                            <p class="card-text">Standalone production without order or jambo dependencies.</p>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-check-circle text-success me-1"></i>Any product size<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Flexible input<br>
+                                    <i class="fas fa-check-circle text-success me-1"></i>Quick production
+                                </small>
+                            </div>
+                            <button class="btn btn-warning w-100" onclick="openIndependentProduction()">
+                                <i class="fas fa-play me-2"></i>Start Independent Production
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">📊 Production Management</h6>
+                            <div class="d-flex flex-wrap">
+                                <!-- Roman Urdu: Reports, Update, Delete, Refresh buttons hata diye -->
+                                <a href="/production/data" class="btn btn-info me-2 mb-2">
+                                    <i class="fas fa-table me-1"></i>Production Data
+                                </a>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Production Types:</strong> Order → Jambo → Independent | Order controls in Order Tab
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Roman Urdu: Neeche se production data table hata di -->
+        </div>
+    </div>
+
+    <!-- Smart Order Production Modal -->
+    <div class="modal fade" id="orderProductionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="smart-production-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">🚀 SMART PRODUCTION SYSTEM</h4>
+                            <p class="mb-0 opacity-75">AUTO-FILTERED: Only Active Orders • Closed Items Excluded • Order Tab Integrated</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="bg-dark bg-opacity-25 rounded p-2">
+                                <small class="text-warning d-block">SYSTEM STATUS</small>
+                                <div class="text-success fw-bold">🟢 AUTO-FILTERED</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="container-fluid py-4">
+                        <div class="row">
+                            <!-- Order Selection Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card production-card card-order h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-clipboard-list me-2"></i>AUTO-FILTERED ORDERS
+                                            <span class="badge bg-light text-primary ms-2" id="step1Status">🔄 Filtering</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Auto Filter Info -->
+                                        <div class="auto-filter-info">
+                                            <h6 class="text-success mb-2">🔍 AUTO-FILTERING ACTIVE:</h6>
+                                            <ul class="small mb-0">
+                                                <li>Only Pending/Partial orders</li>
+                                                <li>Closed orders excluded</li>
+                                                <li>Closed items excluded</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <!-- Search -->
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                <input type="text" class="form-control" id="orderSearch" placeholder="Search orders...">
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Orders List -->
+                                        <h6 class="mb-2">📋 Available Orders (Auto-Filtered)</h6>
+                                        <select class="form-select mb-3" id="ordersList" size="8">
+                                            <option>Loading orders...</option>
+                                        </select>
+                                        
+                                        <!-- Items List -->
+                                        <h6 class="mb-2">📦 Available Items (Non-Closed)</h6>
+                                        <select class="form-select mb-3" id="itemsList" size="6" style="background-color: #fff3cd;">
+                                            <option>Select an order first</option>
+                                        </select>
+                                        
+                                        <!-- Selection Display -->
+                                        <div class="selection-display" id="selectionDisplay">
+                                            No selection made
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Jambo Matching Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card production-card card-jambo h-100">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-film me-2"></i>JAMBO MATCHING
+                                            <span class="badge bg-dark text-warning ms-2" id="step2Status">⏳ Waiting</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Matching Criteria -->
+                                        <div class="alert alert-warning mb-3" id="matchingCriteria">
+                                            Select an item to see matching criteria
+                                        </div>
+                                        
+                                        <!-- Search -->
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                <input type="text" class="form-control" id="jamboSearch" placeholder="Search jambos...">
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Jambos List -->
+                                        <h6 class="mb-2">🎬 Matching Jambos</h6>
+                                        <select class="form-select mb-3" id="jambosList" size="10">
+                                            <option>Select an item to see matching jambos</option>
+                                        </select>
+                                        
+                                        <!-- Jambo Info Display -->
+                                        <div class="alert alert-info" id="jamboInfo">
+                                            <strong>Selected Jambo:</strong> None selected
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Production Calculator Card -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card production-card card-calculator">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calculator me-2"></i>PRODUCTION CALCULATOR
+                                            <span class="badge bg-light text-success ms-2" id="step3Status">⏳ Waiting</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- Input Section -->
+                                            <div class="col-md-4">
+                                                <h6 class="mb-3">📝 Production Input</h6>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Shafts Required: <small class="text-success">Auto + Manual</small></label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="shaftsInput" 
+                                                               value="0" onkeyup="this.value = this.value.replace(/[^\d]/g,'')">
+                                                        <button class="btn btn-outline-secondary" type="button" onclick="useAutoValue('shafts')">
+                                                            <i class="fas fa-sync"></i> Auto
+                                                        </button>
+                                                    </div>
+                                                    <small class="form-text text-muted">Auto-calculated or enter manually</small>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">Pieces per Shaft: <small class="text-success">Auto + Manual</small></label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="piecesInput" 
+                                                               value="0" onkeyup="this.value = this.value.replace(/[^\d]/g,'')">
+                                                        <button class="btn btn-outline-secondary" type="button" onclick="useAutoValue('pieces')">
+                                                            <i class="fas fa-sync"></i> Auto
+                                                        </button>
+                                                    </div>
+                                                    <small class="form-text text-muted">Auto-calculated or enter manually</small>
+                                                </div>
+
+                                                <script>
+                                                    let autoValues = {
+                                                        shafts: 0,
+                                                        pieces: 0
+                                                    };
+
+                                                    // Handle input changes
+                                                    document.getElementById('shaftsInput').addEventListener('input', function() {
+                                                        if (this.value && this.value !== '0') {
+                                                            calculateProduction();
+                                                        }
+                                                    });
+
+                                                    document.getElementById('piecesInput').addEventListener('input', function() {
+                                                        if (this.value && this.value !== '0') {
+                                                            calculateProduction();
+                                                        }
+                                                    });
+
+                                                    function useAutoValue(type) {
+                                                        if (type === 'shafts') {
+                                                            document.getElementById('shaftsInput').value = autoValues.shafts;
+                                                        } else {
+                                                            document.getElementById('piecesInput').value = autoValues.pieces;
+                                                        }
+                                                        calculateProduction();
+                                                    }
+
+                                                    function calculateProduction() {
+                                                        if (!selectedOrder || !selectedItem || !selectedJambo) {
+                                                            return;
+                                                        }
+
+                                                        const shafts = parseInt(document.getElementById('shaftsInput').value) || 0;
+                                                        const pieces = parseInt(document.getElementById('piecesInput').value) || 0;
+
+                                                        fetch('/api/production/calculate', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                order: selectedOrder,
+                                                                item: selectedItem,
+                                                                jambo: selectedJambo,
+                                                                manual_shafts: shafts,
+                                                                manual_pieces_per_shaft: pieces
+                                                            })
+                                                        })
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data.success) {
+                                                                // Store auto values
+                                                                autoValues.shafts = data.results.shafts;
+                                                                autoValues.pieces = data.results.pieces_per_shaft;
+                                                                
+                                                                displayCalculationResults(data.results);
+                                                                productionResults = data.results;
+                                                                updateStep3Status('✅ Ready');
+                                                                updateActionStatus();
+                                                            } else {
+                                                                displayCalculationError(data.error);
+                                                            }
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Calculation error:', error);
+                                                            displayCalculationError('Failed to calculate production');
+                                                        });
+                                                    }
+
+                                                    // Auto calculate button click
+                                                    document.getElementById('autoCalculateBtn').addEventListener('click', function() {
+                                                        document.getElementById('shaftsInput').value = '0';
+                                                        document.getElementById('piecesInput').value = '0';
+                                                        calculateProduction();
+                                                    });
+                                                </script>
+
+                                                <div class="mb-3">
+                                                    <button class="btn btn-success w-100" onclick="autoCalculateProduction()">
+                                                        <i class="fas fa-magic me-2"></i>Auto Calculate
+                                                    </button>
+                                                </div>
+
+                                                <div class="alert alert-info" id="autoInfo">
+                                                    Enter details and calculate
+                                                </div>
+                                            </div>
+
+                                            <!-- Results Section -->
+                                            <div class="col-md-8">
+                                                <h6 class="mb-3">📊 Calculation Results</h6>
+                                                <div class="calculation-results p-3 bg-light rounded" id="calculationResults">
+                                                    Select order, item, and jambo to see calculations
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Footer -->
+                                        <div class="row mt-4">
+                                            <div class="col-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div id="actionStatus" class="text-muted">
+                                                                ⏳ Step 1: Select an active order
+                                                            </div>
+                                                            <div>
+                                                                <button class="btn btn-danger me-2" id="startProductionBtn" onclick="executeProduction()" disabled>
+                                                                    <i class="fas fa-play me-2"></i>🚀 START PRODUCTION
+                                                                </button>
+                                                                <button class="btn btn-secondary me-2" onclick="resetProduction()">
+                                                                    <i class="fas fa-undo me-2"></i>Reset
+                                                                </button>
+                                                                <button class="btn btn-dark" data-bs-dismiss="modal">
+                                                                    <i class="fas fa-times me-2"></i>Close
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables for production state
+        let selectedOrder = null;
+        let selectedItem = null;
+        let selectedJambo = null;
+        let productionResults = { feasible: false };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Production page JavaScript loaded successfully');
+            console.log('📊 Starting data load...');
+            
+            // Test if basic DOM elements exist
+            const tableBody = document.getElementById('productionTableBody');
+            if (tableBody) {
+                console.log('✅ Production table element found');
+            } else {
+                console.error('❌ Production table element not found');
+            }
+            
+            loadProductionData();
+            
+            console.log('✅ Production page initialization complete');
+        });
+
+        // Production Type Functions
+        function openOrderProduction() {
+            const modal = new bootstrap.Modal(document.getElementById('orderProductionModal'));
+            modal.show();
+            loadOrderProductionData();
+        }
+
+        function openJamboProduction() {
+            // Coming Soon message instead of navigation
+            alert('🎯 Jambo Production - Coming Soon!\n\nیہ فیچر جلد ہی آ رہا ہے!\n\nFeatures under development:\n• Direct Jambo Selection\n• Automatic Order Matching\n• Material Optimization\n• Real-time Balance Tracking');
+        }
+
+        function openIndependentProduction() {
+            // To be implemented
+            alert('⚡ Independent Production - Coming soon!');
+        }
+
+        // Load Order Production Data
+        function loadOrderProductionData() {
+            fetch('/api/production/orders')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        populateOrdersList(data.orders);
+                        updateStep1Status('✅ Loaded');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                });
+        }
+
+        function populateOrdersList(orders) {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<option>No active orders found</option>';
+                return;
+            }
+            
+            orders.forEach(order => {
+                const option = document.createElement('option');
+                option.value = JSON.stringify(order);
+                option.textContent = `#${order.order_no} - ${order.customer_name} (${order.status})`;
+                ordersList.appendChild(option);
+            });
+        }
+
+        // Event Handlers
+        document.getElementById('ordersList').addEventListener('change', function() {
+            if (this.value) {
+                selectedOrder = JSON.parse(this.value);
+                loadOrderItems();
+                updateSelectionDisplay();
+            }
+        });
+
+        document.getElementById('itemsList').addEventListener('change', function() {
+            if (this.value) {
+                selectedItem = JSON.parse(this.value);
+                loadMatchingJambos();
+                updateSelectionDisplay();
+            }
+        });
+
+        document.getElementById('jambosList').addEventListener('change', function() {
+            if (this.value) {
+                selectedJambo = JSON.parse(this.value);
+                updateJamboInfo();
+                
+                // ✅ Clear input field first, then auto-calculate to get fresh value
+                document.getElementById('shaftsInput').value = '0';
+                document.getElementById('piecesInput').value = '0';
+                
+                calculateProduction();
+                updateSelectionDisplay();
+            }
+        });
+
+        // Add event listener for manual shafts changes
+        document.getElementById('shaftsInput').addEventListener('input', function() {
+            if (selectedOrder && selectedItem && selectedJambo) {
+                // Recalculate when user manually changes shafts
+                calculateProduction();
+            }
+        });
+
+        // Add event listener for pieces per shaft changes
+        document.getElementById('piecesInput').addEventListener('input', function() {
+            if (selectedOrder && selectedItem && selectedJambo) {
+                // Recalculate when user manually changes pieces per shaft
+                calculateProduction();
+            }
+        });
+
+        // Helper function to convert quantity to pieces
+        function convertToPieces(qty, item = null) {
+            if (!qty) return 'Unknown Pcs';
+            
+            const qtyStr = qty.toString().toLowerCase().trim();
+            
+            // Check if already in pieces format
+            if (qtyStr.includes('pcs') || qtyStr.includes('pieces')) {
+                return qty; // Return as is if already in pieces
+            }
+            
+            // Get packing from item data or use default
+            const packing = (item && item.packing) ? parseInt(item.packing) : 48;
+            
+            // Extract number from quantity text (e.g., "10 Ctn" -> 10, "12 Carton" -> 12, "5 Box" -> 5)
+            const match = qtyStr.match(/(\d+)\s*(ctn|carton|cartons|box|boxes)/i);
+            if (match) {
+                const cartons = parseInt(match[1]);
+                const pieces = cartons * packing; // Use actual packing from item data
+                return `${pieces} Pcs (${cartons} Ctn)`;
+            }
+            
+            // Check for just numbers (assume cartons if no unit specified)
+            const numberMatch = qtyStr.match(/^(\d+)$/);
+            if (numberMatch) {
+                const cartons = parseInt(numberMatch[1]);
+                const pieces = cartons * packing; // Use actual packing from item data
+                return `${pieces} Pcs (${cartons} Ctn)`;
+            }
+            
+            // If unknown format, return original with Pcs suffix
+            return `${qty} (Unknown unit)`;
+        }
+
+        function loadOrderItems() {
+            if (!selectedOrder) {
+                console.log('❌ No selectedOrder');
+                return;
+            }
+            
+            console.log('🔍 Loading items for order:', selectedOrder.order_no);
+            
+            fetch(`/api/production/order-items/${selectedOrder.order_no}`)
+                .then(response => {
+                    console.log('📡 API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📦 API Response data:', data);
+                    
+                    const itemsList = document.getElementById('itemsList');
+                    itemsList.innerHTML = '';
+                    
+                    if (data.success && data.items && data.items.length > 0) {
+                        console.log(`✅ Found ${data.items.length} items`);
+                        data.items.forEach((item, index) => {
+                            console.log(`📋 Item ${index + 1}:`, item);
+                            
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(item);
+                            
+                            // Show full quantity format with packing and total pieces
+                            let qtyText = item.qty;
+                            if (item.total_pieces && item.total_pieces > 0 && !qtyText.includes('=') && qtyText !== `${item.total_pieces} Pcs`) {
+                                qtyText = `${qtyText} = ${item.total_pieces} Pcs`;
+                            }
+                            // Show balance format: "Order #OR-0001 - Karar Trader 43mm x 72 Yard - Clear - 37MIC (10 Ctn x 72 Pcs = 720 Pcs - 290 Pcs = Balance 430 Pcs)"
+                            option.textContent = `Order #${item.order_no} - ${item.party_name} ${item.size} - ${item.colour} - ${item.micron}MIC (${item.production_status_text})`;
+                            itemsList.appendChild(option);
+                        });
+                        console.log('✅ Items populated successfully');
+                    } else {
+                        console.log('❌ No items found or API error:', data);
+                        itemsList.innerHTML = '<option>No available items</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Fetch error:', error);
+                    const itemsList = document.getElementById('itemsList');
+                    itemsList.innerHTML = '<option>Error loading items</option>';
+                });
+        }
+
+        function loadMatchingJambos() {
+            if (!selectedItem) return;
+            
+            // Show detailed matching criteria with micron, pieces, and brand info
+            document.getElementById('matchingCriteria').innerHTML = 
+                `<strong>Matching for:</strong> ${selectedItem.size} - ${selectedItem.colour} - ${selectedItem.micron || 37} MIC - ${selectedItem.brand} (${selectedItem.qty_format} ${selectedItem.production_status_text})`;
+            
+            fetch(`/api/production/matching-jambos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    colour: selectedItem.colour,
+                    size: selectedItem.size,
+                    micron: selectedItem.micron || 37
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('🔍 DEBUG: Matching jambos response:', data);
+                
+                const jambosList = document.getElementById('jambosList');
+                jambosList.innerHTML = '';
+                
+                if (data.success && data.jambos && data.jambos.length > 0) {
+                    data.jambos.forEach(jambo => {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(jambo);
+                        
+                        // Enhanced display with party name, colour, micron, and yards info
+                        const balanceYard = jambo.balance_yard || 0;
+                        const usedYards = jambo.used_yards || 0;
+                        const status = jambo.status || 'ACTIVE';
+                        
+                        let statusIcon = '';
+                        if (status === 'CLOSED') statusIcon = ' ✅';
+                        else if (usedYards > 0) statusIcon = ' ⚡';
+                        else if (balanceYard > 0) statusIcon = ' 🟢';
+                        
+                        // Format: "#1068 - 1280mm - CLEAR - 37 MIC - PartyName (4333 yards available) 🟢"
+                        let displayText = `#${jambo.jambo_no} - ${jambo.size_mm}mm - ${jambo.colour} - ${jambo.micron} MIC - ${jambo.party_name}`;
+                        
+                        if (usedYards > 0) {
+                            displayText += ` (${balanceYard} available, ${usedYards} used${statusIcon})`;
+                        } else {
+                            displayText += ` (${balanceYard} yards available${statusIcon})`;
+                        }
+                        
+                        option.textContent = displayText;
+                        jambosList.appendChild(option);
+                    });
+                    updateStep2Status('✅ Matched');
+                } else {
+                    jambosList.innerHTML = '<option>No matching jambos found</option>';
+                    updateStep2Status('⚠️ No Match');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading matching jambos:', error);
+                const jambosList = document.getElementById('jambosList');
+                jambosList.innerHTML = '<option>Error loading matching jambos</option>';
+                updateStep2Status('❌ Error');
+            });
+        }
+
+        function updateJamboInfo() {
+            if (selectedJambo) {
+                document.getElementById('jamboInfo').innerHTML = 
+                    `<strong>Selected Jambo:</strong> #${selectedJambo.jambo_no} - ${selectedJambo.size_mm}mm - ${selectedJambo.colour} (${selectedJambo.balance_yards} yards available)`;
+            }
+        }
+
+        function autoCalculateProduction() {
+            if (!selectedOrder || !selectedItem || !selectedJambo) {
+                document.getElementById('calculationResults').innerHTML = 'Please select order, item, and jambo first';
+                return;
+            }
+            
+            // Reset input values
+            document.getElementById('shaftsInput').value = '0';
+            document.getElementById('piecesInput').value = '0';
+            
+            // Send calculation request
+            fetch('/api/production/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    order: selectedOrder,
+                    item: selectedItem,
+                    jambo: selectedJambo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayCalculationResults(data.results);
+                    productionResults = data.results;
+                    updateStep3Status('✅ Ready');
+                    updateActionStatus();
+                } else {
+                    displayCalculationError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Calculation error:', error);
+                displayCalculationError('Failed to calculate production');
+            });
+        }
+
+        function displayCalculationResults(results) {
+            // Set input values
+            document.getElementById('shaftsInput').value = results.shafts;
+            document.getElementById('piecesInput').value = results.pieces_per_shaft;
+            
+            // Format the results display
+            const resultsText = `🎯 SMART PRODUCTION ANALYSIS - BALANCE CALCULATION!
+
+📋 ORDER BREAKDOWN:
+- Total Order: ${results.total_order_pieces.toLocaleString()} Pcs
+- Already Produced: ${results.already_produced.toLocaleString()} Pcs  
+- Remaining Balance: ${results.required_pieces.toLocaleString()} Pcs
+- Calculating for: ${results.required_pieces.toLocaleString()} Pcs (Balance Only)
+- Item Micron: ${selectedItem.micron || 37} MIC
+
+📊 BALANCE PRODUCTION:
+- New Production: ${results.total_pieces.toLocaleString()} Pcs
+- Balance Fulfillment: ${results.balance_fulfillment.toFixed(1)}% ${results.balance_fulfillment >= 100 ? '✅ BALANCE FULFILLED' : '⚠️ PARTIAL BALANCE'}
+
+📊 CUTTING EFFICIENCY:
+- Jambo Width: ${results.jambo_width}mm
+- Item Width: ${results.item_width}mm  
+- Pieces per Shaft: ${results.pieces_per_shaft}
+- Width Efficiency: ${results.efficiency.toFixed(1)}%
+
+📏 MATERIAL USAGE:
+- Shafts Required: ${results.shafts} (${results.shafts_source})
+- Auto Suggestion: ${results.auto_calculated_shafts} shafts
+- Yards per Shaft: ${results.yards_per_shaft}
+- Total Yards Needed: ${results.total_yards.toLocaleString()}
+
+🎬 JAMBO ANALYSIS:
+- Balance Available: ${results.jambo_balance.toLocaleString()} yards
+- Total Available: ${results.total_available.toLocaleString()} yards
+
+📦 PRODUCTION OUTPUT:
+- Final Production: ${results.total_pieces.toLocaleString()} pieces
+- Extra Production: ${Math.max(0, results.total_pieces - results.required_pieces).toLocaleString()} pieces
+- Remaining Stock: ${Math.max(0, results.remaining_after).toLocaleString()} yards
+
+✅ STATUS: ${results.shafts_source === 'Auto-Calculated' ? 'SHAFTS AUTO-CALCULATED FOR ORDER FULFILLMENT!' : 'MANUAL OVERRIDE APPLIED'}`;
+
+            document.getElementById('calculationResults').innerHTML = resultsText.replace(/\n/g, '<br>');
+            
+            // Update auto info
+            const shaftsInfo = results.shafts_source === 'Manual Override' ? 
+                `🔧 MANUAL: ${results.shafts} shafts (Auto: ${results.auto_calculated_shafts})` :
+                `🎯 AUTO: ${results.shafts} shafts`;
+            
+            const piecesPerShaftInfo = results.manual_pieces_per_shaft > 0 ?
+                `🔧 MANUAL: ${results.pieces_per_shaft} pcs/shaft` :
+                `🎯 AUTO: ${results.pieces_per_shaft} pcs/shaft`;
+            
+            document.getElementById('autoInfo').innerHTML = 
+                `${shaftsInfo}<br>${piecesPerShaftInfo}<br>
+                <small>Balance: ${results.required_pieces.toLocaleString()} → ${results.total_pieces.toLocaleString()} Pcs</small>`;
+            
+            // Update button state
+            document.getElementById('startProductionBtn').disabled = !(selectedOrder && selectedItem && selectedJambo);
+        }
+
+        function displayCalculationError(error) {
+            document.getElementById('calculationResults').innerHTML = `⚠️ CALCULATION ERROR: ${error}`;
+            document.getElementById('autoInfo').innerHTML = 'Error in calculation';
+            document.getElementById('startProductionBtn').disabled = true;
+        }
+
+        function updateSelectionDisplay() {
+            let displayText = 'Selection: ';
+            if (selectedOrder) displayText += `Order #${selectedOrder.order_no}`;
+            if (selectedItem) displayText += ` → ${selectedItem.size} - ${selectedItem.colour} - ${selectedItem.micron || 37} MIC (${convertToPieces(selectedItem.qty, selectedItem)})`;
+            if (selectedJambo) displayText += ` → Jambo #${selectedJambo.jambo_no}`;
+            
+            if (!selectedOrder) displayText = 'No selection made';
+            
+            document.getElementById('selectionDisplay').textContent = displayText;
+        }
+
+        function updateStep1Status(status) {
+            document.getElementById('step1Status').textContent = status;
+        }
+
+        function updateStep2Status(status) {
+            document.getElementById('step2Status').textContent = status;
+        }
+
+        function updateStep3Status(status) {
+            document.getElementById('step3Status').textContent = status;
+        }
+
+        function updateActionStatus() {
+            const statusElement = document.getElementById('actionStatus');
+            const startButton = document.getElementById('startProductionBtn');
+            
+            if (selectedOrder && selectedItem && selectedJambo) {
+                statusElement.textContent = '✅ Ready for production!';
+                statusElement.className = 'text-success fw-bold';
+                startButton.disabled = false;
+            } else if (!selectedOrder) {
+                statusElement.textContent = '⏳ Step 1: Select an active order';
+                statusElement.className = 'text-warning';
+                startButton.disabled = true;
+            } else if (!selectedItem) {
+                statusElement.textContent = '⏳ Step 2: Select an available item';
+                statusElement.className = 'text-warning';
+                startButton.disabled = true;
+            } else if (!selectedJambo) {
+                statusElement.textContent = '⏳ Step 3: Select a matching jambo';
+                statusElement.className = 'text-warning';
+                startButton.disabled = true;
+            } else {
+                statusElement.textContent = '⚠️ Step 4: Fix calculation issues';
+                statusElement.className = 'text-danger';
+                startButton.disabled = true;
+            }
+        }
+
+        function executeProduction() {
+            if (!selectedOrder || !selectedItem || !selectedJambo) {
+                alert('❌ Please select order, item, and jambo first.');
+                return;
+            }
+            
+            const confirmMsg = `🚀 CONFIRM SMART PRODUCTION
+
+📋 ORDER: #${selectedOrder.order_no} - ${selectedOrder.customer_name}
+🎬 JAMBO: #${selectedJambo.jambo_no} - ${selectedJambo.colour}
+📊 PRODUCTION: ${productionResults.shafts} shafts × ${productionResults.pieces_per_shaft} pcs/shaft = ${productionResults.total_pieces} pieces
+
+Continue with production?`;
+            
+            if (!confirm(confirmMsg)) return;
+            
+            // Get current values
+            const currentShafts = parseInt(document.getElementById('shaftsInput').value) || 0;
+            const currentPiecesPerShaft = parseInt(document.getElementById('piecesInput').value) || 0;
+            
+            // Update production results with current values
+            productionResults.shafts = currentShafts;
+            productionResults.pieces_per_shaft = currentPiecesPerShaft;
+            productionResults.total_pieces = currentShafts * currentPiecesPerShaft;
+            
+            // Execute production
+            fetch('/api/production/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    order: selectedOrder,
+                    item: selectedItem,
+                    jambo: selectedJambo,
+                    results: productionResults
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Production started successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('orderProductionModal')).hide();
+                    loadProductionData(); // Refresh main table
+                } else {
+                    alert('❌ Error starting production: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Production execution error:', error);
+                alert('❌ Error starting production!');
+            });
+        }
+
+        function resetProduction() {
+            selectedOrder = null;
+            selectedItem = null;
+            selectedJambo = null;
+            productionResults = { feasible: false };
+            
+            document.getElementById('ordersList').selectedIndex = -1;
+            document.getElementById('itemsList').innerHTML = '<option>Select an order first</option>';
+            document.getElementById('jambosList').innerHTML = '<option>Select an item to see matching jambos</option>';
+            document.getElementById('shaftsInput').value = '0';
+            document.getElementById('piecesInput').value = '0';
+            document.getElementById('shaftsHint').textContent = 'Select item for auto-calculation, or enter custom value';
+            document.getElementById('piecesHint').textContent = 'Select item for auto-calculation, or enter custom value';
+            document.getElementById('calculationResults').textContent = 'Select order, item, and jambo to see calculations';
+            document.getElementById('selectionDisplay').textContent = 'No selection made';
+            
+            updateStep1Status('🔄 Filtering');
+            updateStep2Status('⏳ Waiting');
+            updateStep3Status('⏳ Waiting');
+            updateActionStatus();
+        }
+
+        // Production Management Functions
+        function loadProductionData() {
+            console.log('📡 Loading production data from API...');
+            
+            fetch('/api/production/list')
+                .then(response => {
+                    console.log('📡 API Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📦 API Response data:', data);
+                    
+                    if (data.success) {
+                        console.log(`✅ Found ${data.productions ? data.productions.length : 0} production records`);
+                        populateProductionTable(data.productions);
+                        
+                        // Update count display if element exists
+                        const countElement = document.getElementById('productionCount');
+                        if (countElement) {
+                            countElement.textContent = data.productions.length;
+                        }
+                    } else {
+                        console.error('❌ API returned error:', data.error);
+                        const tbody = document.getElementById('productionTableBody');
+                        if (tbody) {
+                            tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Error loading production data</td></tr>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading production data:', error);
+                    const tbody = document.getElementById('productionTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Failed to load production data. Please check your connection.</td></tr>';
+                    }
+                });
+        }
+
+        function populateProductionTable(productions) {
+            const tbody = document.getElementById('productionTableBody');
+            tbody.innerHTML = '';
+            
+            if (!productions || productions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center text-muted">No production data available</td></tr>';
+                return;
+            }
+            
+            productions.forEach(prod => {
+                // Calculate pieces per shaft
+                const totalShafts = parseInt(prod.shafts) || 0;
+                const totalPieces = parseInt(prod.pieces) || 0;
+                const piecesPerShaft = totalShafts > 0 ? Math.round(totalPieces / totalShafts) : 0;
+                
+                // Escape special characters to prevent JavaScript errors
+                const safeOrderNo = (prod.order_no || '-').replace(/'/g, "\\'");
+                const safeProduct = (prod.product || '-').replace(/'/g, "\\'");
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${prod.id || '-'}</td>
+                    <td>${prod.order_no || '-'}</td>
+                    <td>${prod.customer || '-'}</td>
+                    <td>${prod.product || '-'}</td>
+                    <td>${prod.jambo_no || '-'}</td>
+                    <td>${prod.shafts || '-'}</td>
+                    <td><span class="badge bg-info">${piecesPerShaft}</span></td>
+                    <td>${prod.pieces || '-'}</td>
+                    <td>${prod.yards || '-'}</td>
+                    <td><span class="status-${(prod.status || 'pending').toLowerCase().replace(' ', '-')}">${prod.status || 'Pending'}</span></td>
+                    <td>${prod.date || '-'}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewProductionDetails(${prod.id})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="editProduction(${prod.id})" title="Edit Production">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteProductionItem(${prod.id}, '${safeOrderNo}', '${safeProduct}')" title="Delete Production">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            console.log(`✅ Production table populated with ${productions.length} records`);
+        }
+
+        function showProductionReports() {
+            alert('📊 Production Reports - Coming soon!');
+        }
+
+        function updateProductionStatus() {
+            alert('✏️ Update Production Status - Coming soon!');
+        }
+
+        function deleteProduction() {
+            alert('🗑️ Delete Production - Coming soon!');
+        }
+
+        function refreshProduction() {
+            loadProductionData();
+        }
+
+        function viewProductionDetails(id) {
+            if (!id) {
+                alert('❌ Invalid production ID');
+                return;
+            }
+            
+            // Show modal with production details
+            console.log(`📋 Viewing production details for ID: ${id}`);
+            
+            // Fetch production details
+            fetch(`/api/production/details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showProductionDetailsModal(data.production);
+                    } else {
+                        alert(`📋 Production Details for ID: ${id}\n\n${data.error || 'Details not available yet'}\n\nFull details view coming soon!`);
+                    }
+                })
+                .catch(error => {
+                    console.log('Details fetch error:', error);
+                    alert(`📋 Production Details for ID: ${id}\n\nQuick details view coming soon!\nFor now, this confirms the view button is working.`);
+                });
+        }
+
+        function editProduction(id) {
+            if (!id) {
+                alert('❌ Invalid production ID');
+                return;
+            }
+            
+            console.log(`✏️ Editing production ID: ${id}`);
+            
+            // Fetch production details first
+            fetch(`/api/production/details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showEditProductionModal(data.production);
+                    } else {
+                        alert('❌ Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching production details:', error);
+                    alert('❌ Error fetching production details');
+                });
+        }
+
+        function showEditProductionModal(production) {
+            // Create modal for editing
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'editProductionModal';
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-hidden', 'true');
+            
+            modal.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>Edit Production #${production.id}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editProductionForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Order No</label>
+                                    <input type="text" class="form-control" value="${production.order_no}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Customer</label>
+                                    <input type="text" class="form-control" value="${production.customer_name}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jambo No</label>
+                                    <input type="text" class="form-control" value="${production.jambo_no}" readonly>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Shafts Used</label>
+                                            <input type="number" class="form-control" id="editShafts" value="${production.shafts_used}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Yards Used</label>
+                                            <input type="number" class="form-control" id="editYards" value="${production.yards_used}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Produced Pieces</label>
+                                    <input type="number" class="form-control" id="editPieces" value="${production.produced_pieces}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="editStatus">
+                                        <option value="Pending" ${production.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="In Progress" ${production.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value="Completed" ${production.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-warning" onclick="saveProductionChanges(${production.id})">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if present
+            const existingModal = document.getElementById('editProductionModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body and show
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
+
+        function saveProductionChanges(id) {
+            const shafts = document.getElementById('editShafts').value;
+            const yards = document.getElementById('editYards').value;
+            const pieces = document.getElementById('editPieces').value;
+            const status = document.getElementById('editStatus').value;
+            
+            fetch(`/api/production/update/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    shafts_used: parseInt(shafts),
+                    yards_used: parseFloat(yards),
+                    produced_pieces: parseInt(pieces),
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Production updated successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('editProductionModal')).hide();
+                    loadProductionData(); // Refresh table
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating production:', error);
+                alert('❌ Error updating production');
+            });
+        }
+
+        function showProductionDetailsModal(production) {
+            // Create a detailed modal instead of simple alert
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'productionDetailsModal';
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-hidden', 'true');
+            
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-info-circle me-2"></i>Production Details - ID: ${production.id}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary"><i class="fas fa-clipboard-list me-2"></i>Order Information</h6>
+                                    <table class="table table-sm">
+                                        <tr><th>Order No:</th><td>${production.order_no || 'N/A'}</td></tr>
+                                        <tr><th>Customer:</th><td>${production.customer_name || 'N/A'}</td></tr>
+                                        <tr><th>Status:</th><td><span class="badge bg-info">${production.status || 'N/A'}</span></td></tr>
+                                        <tr><th>Production Date:</th><td>${production.production_date || 'N/A'}</td></tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-warning"><i class="fas fa-box me-2"></i>Product Information</h6>
+                                    <table class="table table-sm">
+                                        <tr><th>Size:</th><td>${production.product_size || 'N/A'}</td></tr>
+                                        <tr><th>Colour:</th><td>${production.colour || 'N/A'}</td></tr>
+                                        <tr><th>Micron:</th><td>${production.micron || 'N/A'}</td></tr>
+                                        <tr><th>Brand:</th><td>${production.brand || 'N/A'}</td></tr>
+                                        <tr><th>Quantity:</th><td>${production.qty || 'N/A'}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-danger"><i class="fas fa-film me-2"></i>Jambo Information</h6>
+                                    <table class="table table-sm">
+                                        <tr><th>Jambo No:</th><td>#${production.jambo_number || 'N/A'}</td></tr>
+                                        <tr><th>Party:</th><td>${production.party_name || 'N/A'}</td></tr>
+                                        <tr><th>Size:</th><td>${production.jambo_size_mm || 'N/A'}mm x ${production.jambo_size_m || 'N/A'}m</td></tr>
+                                        <tr><th>Weight:</th><td>${production.jambo_weight_kg || 'N/A'} kg</td></tr>
+                                        <tr><th>Balance:</th><td>${production.jambo_balance_yard || 'N/A'} yards</td></tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success"><i class="fas fa-chart-bar me-2"></i>Production Statistics</h6>
+                                    <table class="table table-sm">
+                                        <tr><th>Shafts Used:</th><td>${production.shafts_used || 0}</td></tr>
+                                        <tr><th>Pieces/Shaft:</th><td>${production.pieces_per_shaft || 0}</td></tr>
+                                        <tr><th>Total Pieces:</th><td>${production.produced_pieces || 0}</td></tr>
+                                        <tr><th>Total Yards:</th><td>${production.yards_used || 0}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-warning" onclick="editProduction(${production.id})">
+                                <i class="fas fa-edit me-2"></i>Edit Production
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if present
+            const existingModal = document.getElementById('productionDetailsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body and show
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+            
+            // Remove modal from DOM after hiding
+            modal.addEventListener('hidden.bs.modal', function() {
+                modal.remove();
+            });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Search functionality
+        document.getElementById('orderSearch').addEventListener('input', function() {
+            // Filter orders based on search
+            // To be implemented
+        });
+
+        document.getElementById('jamboSearch').addEventListener('input', function() {
+            const searchText = this.value.trim();
+            
+            if (searchText.length === 0) {
+                // If empty search, reload matching jambos for current item
+                if (selectedItem) {
+                    loadMatchingJambos();
+                } else {
+                    const jambosList = document.getElementById('jambosList');
+                    jambosList.innerHTML = '<option>Select an item to see matching jambos</option>';
+                }
+                return;
+            }
+            
+            // Search jambos with the search text
+            if (searchText.length >= 1) {  // Search after 1 character
+                searchJambos(searchText);
+            }
+        });
+        
+        function searchJambos(searchText) {
+            fetch('/api/production/matching-jambos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    search_text: searchText,
+                    colour: selectedItem ? selectedItem.colour || '' : '',
+                    size: selectedItem ? selectedItem.size || '' : '',
+                    micron: selectedItem ? selectedItem.micron || 37 : 37
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    populateJambosList(data.jambos);
+                    updateStep3Status(data.jambos.length > 0 ? `✅ Found ${data.jambos.length}` : '❌ None found');
+                } else {
+                    console.error('Error searching jambos:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Jambo search error:', error);
+            });
+        }
+        
+        function populateJambosList(jambos) {
+            const jambosList = document.getElementById('jambosList');
+            jambosList.innerHTML = '';
+            
+            if (jambos && jambos.length > 0) {
+                jambos.forEach(jambo => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(jambo);
+                    
+                    // Enhanced display with party name, colour, micron, and yards info
+                    const balanceYards = jambo.balance_yards || 0;
+                    const usedYards = jambo.used_yards || 0;  // Use actual used yards from database
+                    const status = jambo.status || '';
+                    
+                    let statusIcon = '';
+                    if (status === 'completed') statusIcon = ' ✅';
+                    else if (status === 'partial') statusIcon = ' ⚡';
+                    else if (balanceYards > 0) statusIcon = ' 🟢';
+                    
+                    // Format: "#1068 - 1280mm - CLEAR - 37 MIC - PartyName (4333 yards available) 🟢"
+                    let displayText = `#${jambo.jambo_no} - ${jambo.size_mm}mm - ${jambo.colour} - ${jambo.micron} MIC - ${jambo.party_name}`;
+                    
+                    if (usedYards > 0) {
+                        displayText += ` (${balanceYards} available, ${usedYards} used${statusIcon})`;
+                    } else {
+                        displayText += ` (${balanceYards} yards available${statusIcon})`;
+                    }
+                    
+                    option.textContent = displayText;
+                    jambosList.appendChild(option);
+                });
+            } else {
+                jambosList.innerHTML = '<option>No matching jambos found</option>';
+            }
+        }
+
+        // Display order items
+        function displayOrderItems(items) {
+            const itemsList = document.getElementById('itemsList');
+            if (!items || items.length === 0) {
+                itemsList.innerHTML = '<option value="">No items found</option>';
+                return;
+            }
+
+            itemsList.innerHTML = items.map(item => {
+                // Use the formatted quantity from backend
+                return `
+                    <option value='${JSON.stringify(item)}'>
+                        ${item.size} - ${item.colour} - ${item.micron}MIC
+                        (${item.qty_format})
+                    </option>
+                `;
+            }).join('');
+        }
+
+        function deleteProductionItem(id, orderNo, product) {
+            if (!id) {
+                alert('❌ Invalid production ID');
+                return;
+            }
+            
+            console.log(`🗑️ Delete request for production ID: ${id}`);
+            
+            if (confirm(`🗑️ Delete Production?\n\nID: ${id}\nOrder: ${orderNo}\nProduct: ${product}\n\n⚠️ This action cannot be undone!`)) {
+                fetch(`/api/production/delete/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Production deleted successfully!');
+                        loadProductionData(); // Refresh table
+                    } else {
+                        alert('❌ Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    alert('❌ Error deleting production');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

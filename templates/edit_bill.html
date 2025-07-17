@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h2>Edit Bill - {{ bill.bill_no }}</h2>
+    <form method="post" id="editBillForm">
+        <div class="mb-3">
+            <label class="form-label">Customer Name</label>
+            <input type="text" class="form-control" name="customer_name" value="{{ bill.customer_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" name="date" value="{{ bill.date if bill.date else '' }}" required>
+        </div>
+        <h5>Bill Items</h5>
+        <table class="table table-bordered" id="itemsTable">
+            <thead>
+                <tr>
+                    <th>QTY</th>
+                    <th>Size</th>
+                    <th>Colour</th>
+                    <th>Brand</th>
+                    <th>Mic</th>
+                    <th>Printed</th>
+                    <th>Varity</th>
+                    <th>Per Ctn Qty</th>
+                    <th>Rate</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in bill['items'] %}
+                <tr>
+                    <td><input type="number" class="form-control" name="qty" value="{{ item.qty }}" required></td>
+                    <td><input type="text" class="form-control" name="size" value="{{ item.size }}"></td>
+                    <td><input type="text" class="form-control" name="colour" value="{{ item.colour }}"></td>
+                    <td><input type="text" class="form-control" name="brand" value="{{ item.brand }}"></td>
+                    <td><input type="text" class="form-control" name="mic" value="{{ item.mic }}"></td>
+                    <td><input type="text" class="form-control" name="printed" value="{{ item.printed }}"></td>
+                    <td><input type="text" class="form-control" name="varity" value="{{ item.varity }}"></td>
+                    <td><input type="number" class="form-control" name="per_ctn_qty" value="{{ item.per_ctn_qty }}"></td>
+                    <td><input type="number" class="form-control" name="rate" value="{{ item.rate }}"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-secondary mb-3" onclick="addRow()">Add Item</button>
+        <input type="hidden" name="items" id="itemsInput">
+        <button type="submit" class="btn btn-primary">Update Bill</button>
+        <a href="{{ url_for('reports.list_bills') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script>
+// Roman Urdu: Naye row add karne ka function
+function addRow() {
+    const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+    const row = table.insertRow();
+    for (let i = 0; i < 9; i++) {
+        const cell = row.insertCell();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        if (i === 0 || i === 7 || i === 8) {
+            input.type = 'number';
+        }
+        if (i === 0 || i === 1) { // Roman Urdu: QTY aur Size required hain
+            input.required = true;
+        }
+        cell.appendChild(input);
+    }
+    const actionCell = row.insertCell();
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'btn btn-danger btn-sm';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = function() { removeRow(this); };
+    actionCell.appendChild(deleteBtn);
+}
+
+// Row delete karne ka function
+function removeRow(btn) {
+    btn.closest('tr').remove();
+}
+
+// Form submit hone se pehle items ko JSON me convert kar ke hidden input me daal do
+document.getElementById('editBillForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Roman Urdu: Default form submission ko rok do
+    
+    const items = [];
+    const rows = document.querySelectorAll('#itemsTable tbody tr');
+    
+    rows.forEach(function(row) {
+        const inputs = row.querySelectorAll('input');
+        if (inputs[0].value && inputs[1].value) { // Roman Urdu: Sirf valid items add karo
+            items.push({
+                qty: inputs[0].value,
+                size: inputs[1].value,
+                colour: inputs[2].value || '',
+                brand: inputs[3].value || '',
+                mic: inputs[4].value || '',
+                printed: inputs[5].value || '',
+                varity: inputs[6].value || '',
+                per_ctn_qty: inputs[7].value || 0,
+                rate: inputs[8].value || 0
+            });
+        }
+    });
+    
+    if (items.length === 0) {
+        alert('Please add at least one item with QTY and Size!');
+        return;
+    }
+    
+    document.getElementById('itemsInput').value = JSON.stringify(items);
+    
+    // Roman Urdu: Form ko submit karo
+    this.submit();
+});
+</script>
+{% endblock %} 

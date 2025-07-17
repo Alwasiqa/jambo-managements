@@ -1,0 +1,675 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Order - Jambo Management Cloud{% endblock %}
+
+{% block styles %}
+<style>
+    /* Make table wider and more spacious */
+    .table-responsive {
+        overflow-x: auto;
+        min-width: 1400px;
+    }
+    
+    #orderItemsTable {
+        min-width: 1400px;
+        font-size: 0.9rem;
+    }
+    
+    #orderItemsTable th,
+    #orderItemsTable td {
+        padding: 0.5rem;
+        vertical-align: middle;
+    }
+    
+    #orderItemsTable input {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    /* Make form inputs larger */
+    .form-control {
+        font-size: 0.95rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    /* Increase container width */
+    .container-fluid {
+        max-width: 95%;
+        margin: 0 auto;
+    }
+    
+    /* Make cards more spacious */
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Better spacing for table headers */
+    .table-dark th {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Quick Tips -->
+    <div class="alert alert-info">
+        <i class="fas fa-lightbulb"></i> <strong>Quick Tips:</strong> 
+        Press <kbd>Ctrl+I</kbd> to add new item | Fill Unit Price & Qty for auto-calculation | Tab to navigate quickly
+    </div>
+
+    <!-- Order Header -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-file-invoice"></i>
+                Order Details Header
+            </h5>
+        </div>
+        <div class="card-body">
+            <form id="orderForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Order No. *</label>
+                    <input type="text" class="form-control" id="orderNo" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Customer Name *</label>
+                    <div class="input-group">
+                        <div class="position-relative flex-grow-1">
+                            <input type="text" id="customerName" class="form-control" 
+                                   placeholder="Type to search customers..." 
+                                   autocomplete="off" 
+                                   required>
+                            <div id="customerDropdown" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Customers will be loaded here -->
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary" onclick="showAddCustomerModal()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date *</label>
+                    <input type="date" class="form-control" id="orderDate" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" id="customerPhone" placeholder="Optional">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" id="customerAddress" rows="2" placeholder="Optional"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i>
+                Order Items
+            </h5>
+            <button type="button" class="btn btn-light" onclick="addNewItem()">
+                <i class="fas fa-plus"></i> Add Item
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0" id="orderItemsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 50px;">No.</th>
+                            <th style="width: 80px;">Size MM</th>
+                            <th style="width: 80px;">Size Yard</th>
+                            <th style="width: 80px;">Qty</th>
+                            <th style="width: 60px;">Micron</th>
+                            <th style="width: 100px;">Brand</th>
+                            <th style="width: 100px;">Colour</th>
+                            <th style="width: 100px;">Variety</th>
+                            <th style="width: 100px;">Packing</th>
+                            <th style="width: 150px;">Printed Matter</th>
+                            <th style="width: 100px;">Unit Price</th>
+                            <th style="width: 120px;">Amount</th>
+                            <th style="width: 150px;">Notes</th>
+                            <th style="width: 100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Items will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-calculator"></i>
+                Order Summary
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-1">Total Items: <span id="totalItems">0</span></p>
+                    <p class="mb-0">Fill order details and add items to see complete summary</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <h3 class="text-success mb-0">
+                        Total Amount: Rs. <span id="totalAmount">0.00</span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-info me-2" onclick="previewOrder()">
+                        <i class="fas fa-eye"></i> Preview Order
+                    </button>
+                    <button type="button" class="btn btn-warning me-2" onclick="clearAll()">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success me-2" onclick="saveOrder()">
+                        <i class="fas fa-save"></i> Save Order
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/orders'">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Customer Modal -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i>
+                    Add New Customer
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="customerForm">
+                    <div class="mb-3">
+                        <label class="form-label">Customer Name *</label>
+                        <input type="text" class="form-control" id="newCustomerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="newCustomerPhone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="newCustomerEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" id="newCustomerAddress" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" id="newCustomerCity">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize everything when document is ready
+$(document).ready(function() {
+    // Set default date to today
+    $('#orderDate').val(new Date().toISOString().split('T')[0]);
+    
+    // Initialize customer search
+    initCustomerSearch();
+    
+    // Add first item row
+    addNewItem();
+    
+    // Get next order number
+    getNextOrderNumber();
+    
+    // Add keyboard shortcuts
+    $(document).on('keydown', function(e) {
+        // Ctrl+I to add new item
+        if (e.ctrlKey && e.key === 'i') {
+            e.preventDefault();
+            addNewItem();
+        }
+    });
+});
+
+// Initialize customer search
+function initCustomerSearch() {
+    const customerInput = $('#customerName');
+    const dropdown = $('#customerDropdown');
+    let customers = [];
+    
+    // Load customers
+    function loadCustomers() {
+        $.get('/api/customers')
+            .done(function(response) {
+                if (response.success) {
+                    customers = response.customers;
+                } else {
+                    showToast('error', 'Error loading customers');
+                }
+            })
+            .fail(function() {
+                showToast('error', 'Error loading customers');
+            });
+    }
+    
+    // Load initial customers
+    loadCustomers();
+    
+    // Show dropdown on focus
+    customerInput.on('focus', function() {
+        const query = $(this).val().toLowerCase();
+        updateDropdown(query);
+        dropdown.show();
+    });
+    
+    // Hide dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.input-group').length) {
+            dropdown.hide();
+        }
+    });
+    
+    // Handle input changes
+    customerInput.on('input', function() {
+        const query = $(this).val().toLowerCase();
+        updateDropdown(query);
+    });
+    
+    // Update dropdown with filtered customers
+    function updateDropdown(query) {
+        const filtered = customers.filter(customer => 
+            customer.toLowerCase().includes(query)
+        );
+        
+        if (filtered.length) {
+            const html = filtered.map(customer => `
+                <a class="dropdown-item" href="#">${customer}</a>
+            `).join('');
+            dropdown.html(html).show();
+        } else {
+            dropdown.html('<div class="dropdown-item text-muted">No customers found</div>').show();
+        }
+    }
+    
+    // Handle customer selection
+    dropdown.on('click', '.dropdown-item', function(e) {
+        e.preventDefault();
+        const selected = $(this).text();
+        customerInput.val(selected);
+        dropdown.hide();
+        
+        // Get customer details
+        $.get(`/api/customers/${encodeURIComponent(selected)}`)
+            .done(function(response) {
+                if (response.success) {
+                    $('#customerPhone').val(response.customer.phone || '');
+                    $('#customerAddress').val(response.customer.address || '');
+                }
+            });
+    });
+}
+
+// Show add customer modal
+function showAddCustomerModal() {
+    // Clear form
+    $('#customerForm')[0].reset();
+    // Show modal
+    $('#addCustomerModal').modal('show');
+}
+
+// Save customer
+function saveCustomer() {
+    const customerData = {
+        name: $('#newCustomerName').val().trim(),
+        phone: $('#newCustomerPhone').val().trim(),
+        email: $('#newCustomerEmail').val().trim(),
+        address: $('#newCustomerAddress').val().trim(),
+        city: $('#newCustomerCity').val().trim()
+    };
+    
+    if (!customerData.name) {
+        showToast('error', 'Customer name is required');
+        return;
+    }
+    
+    $.ajax({
+        url: '/api/customers/add',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(customerData),
+        success: function(response) {
+            if (response.success) {
+                showToast('success', 'Customer added successfully');
+                $('#addCustomerModal').modal('hide');
+                
+                // Update customer input
+                $('#customerName').val(customerData.name);
+                $('#customerPhone').val(customerData.phone);
+                $('#customerAddress').val(customerData.address);
+                
+                // Reload customers list
+                loadCustomers();
+            } else {
+                showToast('error', response.message);
+            }
+        },
+        error: function() {
+            showToast('error', 'Error adding customer');
+        }
+    });
+}
+
+// Get next order number
+function getNextOrderNumber() {
+    $.get('/api/orders/next-number')
+        .done(function(response) {
+            if (response.success) {
+                $('#orderNo').val(response.next_order_no);
+            }
+        });
+}
+
+// Add new item row
+function addNewItem() {
+    const tbody = $('#orderItemsTable tbody');
+    const rowCount = tbody.children().length;
+    
+    const newRow = $(`
+        <tr>
+            <td class="text-center">${rowCount + 1}</td>
+            <td><input type="number" class="form-control form-control-sm" name="size_mm" placeholder="69"></td>
+            <td><input type="number" class="form-control form-control-sm" name="size_yard" placeholder="72"></td>
+            <td><input type="text" class="form-control form-control-sm" name="qty"></td>
+            <td><input type="number" class="form-control form-control-sm" name="micron" value="37"></td>
+            <td><input type="text" class="form-control form-control-sm" name="brand"></td>
+            <td><input type="text" class="form-control form-control-sm" name="colour"></td>
+            <td><input type="text" class="form-control form-control-sm" name="variety"></td>
+            <td><input type="text" class="form-control form-control-sm" name="packing"></td>
+            <td><input type="text" class="form-control form-control-sm" name="printed_matter"></td>
+            <td><input type="number" class="form-control form-control-sm" name="unit_price" step="0.01"></td>
+            <td><input type="number" class="form-control form-control-sm" name="amount" readonly></td>
+            <td><input type="text" class="form-control form-control-sm" name="notes"></td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `);
+    
+    tbody.append(newRow);
+    updateTotals();
+    
+    // Focus first input in new row
+    newRow.find('input:first').focus();
+}
+
+// Remove item row
+function removeItem(button) {
+    $(button).closest('tr').remove();
+    updateTotals();
+    renumberRows();
+}
+
+// Renumber rows
+function renumberRows() {
+    $('#orderItemsTable tbody tr').each(function(index) {
+        $(this).find('td:first').text(index + 1);
+    });
+}
+
+// Update totals
+function updateTotals() {
+    let totalItems = 0;
+    let totalAmount = 0;
+    
+    $('#orderItemsTable tbody tr').each(function() {
+        totalItems++;
+        const amount = parseFloat($(this).find('input[name="amount"]').val()) || 0;
+        totalAmount += amount;
+    });
+    
+    $('#totalItems').text(totalItems);
+    $('#totalAmount').text(totalAmount.toFixed(2));
+}
+
+// Calculate amount
+function calculateAmount(row) {
+    const qty = parseFloat(row.find('input[name="qty"]').val()) || 0;
+    const unitPrice = parseFloat(row.find('input[name="unit_price"]').val()) || 0;
+    const amount = qty * unitPrice;
+    row.find('input[name="amount"]').val(amount.toFixed(2));
+    updateTotals();
+}
+
+// Handle quantity and unit price changes
+$(document).on('input', 'input[name="qty"], input[name="unit_price"]', function() {
+    calculateAmount($(this).closest('tr'));
+});
+
+// Preview order
+function previewOrder() {
+    if (!validateForm()) return;
+    
+    const orderData = getOrderData();
+    
+    // Show preview in new window
+    const previewWindow = window.open('', '_blank');
+    previewWindow.document.write(`
+        <html>
+        <head>
+            <title>Order Preview</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="p-4">
+            <h2>Order Preview</h2>
+            <hr>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Order Details</h4>
+                    <p>Order No: ${orderData.order_no}</p>
+                    <p>Date: ${orderData.date}</p>
+                    <p>Customer: ${orderData.customer_name}</p>
+                    <p>Phone: ${orderData.customer_phone || '-'}</p>
+                    <p>Address: ${orderData.customer_address || '-'}</p>
+                </div>
+            </div>
+            <h4>Order Items</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Size</th>
+                        <th>Qty</th>
+                        <th>Micron</th>
+                        <th>Brand</th>
+                        <th>Colour</th>
+                        <th>Variety</th>
+                        <th>Packing</th>
+                        <th>Printed Matter</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orderData.items.map((item, index) => `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.size}</td>
+                            <td>${item.qty}</td>
+                            <td>${item.micron}</td>
+                            <td>${item.brand}</td>
+                            <td>${item.colour}</td>
+                            <td>${item.variety}</td>
+                            <td>${item.packing}</td>
+                            <td>${item.printed_matter}</td>
+                            <td>${item.unit_price}</td>
+                            <td>${item.amount}</td>
+                            <td>${item.notes}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="text-end">
+                <h4>Total Amount: Rs. ${orderData.total_amount}</h4>
+            </div>
+        </body>
+        </html>
+    `);
+}
+
+// Save order
+function saveOrder() {
+    if (!validateForm()) return;
+    
+    const orderData = getOrderData();
+    
+    $.ajax({
+        url: '/api/orders/save',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(orderData),
+        success: function(response) {
+            if (response.success) {
+                showToast('success', 'Order saved successfully');
+                setTimeout(() => {
+                    window.location.href = '/orders';
+                }, 1000);
+            } else {
+                showToast('error', response.message);
+            }
+        },
+        error: function() {
+            showToast('error', 'Error saving order');
+        }
+    });
+}
+
+// Get order data
+function getOrderData() {
+    const items = [];
+    
+    $('#orderItemsTable tbody tr').each(function() {
+        const size_mm = $(this).find('input[name="size_mm"]').val();
+        const size_yard = $(this).find('input[name="size_yard"]').val();
+        const size = size_mm && size_yard ? `${size_mm}mm x ${size_yard} Yard` : '';
+        
+        items.push({
+            size: size,
+            size_mm: size_mm,
+            size_yard: size_yard,
+            qty: $(this).find('input[name="qty"]').val(),
+            micron: $(this).find('input[name="micron"]').val(),
+            brand: $(this).find('input[name="brand"]').val(),
+            colour: $(this).find('input[name="colour"]').val(),
+            variety: $(this).find('input[name="variety"]').val(),
+            packing: $(this).find('input[name="packing"]').val(),
+            printed_matter: $(this).find('input[name="printed_matter"]').val(),
+            unit_price: $(this).find('input[name="unit_price"]').val(),
+            amount: $(this).find('input[name="amount"]').val(),
+            notes: $(this).find('input[name="notes"]').val()
+        });
+    });
+    
+    return {
+        order_no: $('#orderNo').val(),
+        date: $('#orderDate').val(),
+        customer_name: $('#customerName').val(),
+        customer_phone: $('#customerPhone').val(),
+        customer_address: $('#customerAddress').val(),
+        items: items,
+        total_amount: $('#totalAmount').text()
+    };
+}
+
+// Validate form
+function validateForm() {
+    // Check required fields
+    if (!$('#orderNo').val()) {
+        showToast('error', 'Order number is required');
+        $('#orderNo').focus();
+        return false;
+    }
+    
+    if (!$('#customerName').val()) {
+        showToast('error', 'Customer name is required');
+        $('#customerName').focus();
+        return false;
+    }
+    
+    if (!$('#orderDate').val()) {
+        showToast('error', 'Order date is required');
+        $('#orderDate').focus();
+        return false;
+    }
+    
+    // Check items
+    if ($('#orderItemsTable tbody tr').length === 0) {
+        showToast('error', 'At least one item is required');
+        return false;
+    }
+    
+    let valid = true;
+    $('#orderItemsTable tbody tr').each(function() {
+        const size_mm = $(this).find('input[name="size_mm"]').val();
+        const size_yard = $(this).find('input[name="size_yard"]').val();
+        const qty = $(this).find('input[name="qty"]').val();
+        
+        if (!size_mm || !size_yard || !qty) {
+            showToast('error', 'Size MM, Size Yard and quantity are required for all items');
+            valid = false;
+            return false;
+        }
+    });
+    
+    return valid;
+}
+
+// Clear all
+function clearAll() {
+    if (confirm('Are you sure you want to clear all data?')) {
+        $('#orderForm')[0].reset();
+        $('#orderItemsTable tbody').empty();
+        addNewItem();
+        getNextOrderNumber();
+        $('#orderDate').val(new Date().toISOString().split('T')[0]);
+    }
+}
+</script>
+{% endblock %} 

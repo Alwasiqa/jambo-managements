@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Order - {{ order.order_no }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .edit-header {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .item-row {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+        }
+        
+        .btn-add-item {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-remove-item {
+            background: #e74c3c;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .btn-save {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .btn-cancel {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body style="background-color: #f8f9fa;">
+    
+    <!-- Edit Header -->
+    <div class="edit-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-edit me-3"></i>
+                        Edit Order: {{ order.order_no }}
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75">
+                        <i class="fas fa-user me-2"></i>{{ order.customer_name }}
+                        <span class="ms-4">
+                            <i class="fas fa-calendar me-2"></i>{{ order.order_date_display or order.order_date }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-warning fs-6">
+                        <i class="fas fa-pen me-1"></i>Editing Mode
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" id="editOrderForm">
+            
+            <!-- Order Information -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-card">
+                        <h4 class="mb-4">
+                            <i class="fas fa-info-circle text-primary me-2"></i>Order Information
+                        </h4>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Order Number</label>
+                                <input type="text" class="form-control" value="{{ order.order_no }}" readonly 
+                                       style="background-color: #e9ecef; font-weight: bold;">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Order Date *</label>
+                                <input type="date" class="form-control" name="order_date" 
+                                       value="{{ order.order_date }}" required>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="In Progress" {% if order.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Completed" {% if order.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    <option value="Dispatched" {% if order.status == 'Dispatched' %}selected{% endif %}>Dispatched</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-card">
+                        <h4 class="mb-4">
+                            <i class="fas fa-user text-success me-2"></i>Customer Information
+                        </h4>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Customer Name *</label>
+                                <input type="text" class="form-control" name="customer_name" 
+                                       value="{{ order.customer_name }}" required>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" name="customer_phone" 
+                                       value="{{ order.customer_phone or '' }}">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" name="customer_address" rows="3">{{ order.customer_address or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-list text-warning me-2"></i>Order Items
+                            </h4>
+                            <button type="button" class="btn btn-add-item" onclick="addNewItem()">
+                                <i class="fas fa-plus me-2"></i>Add New Item
+                            </button>
+                        </div>
+                        
+                        <div id="itemsContainer">
+                            {% for item in items %}
+                            <div class="item-row{% if item.has_production %} has-production{% endif %}" data-item-index="{{ loop.index0 }}"{% if item.has_production %} data-has-production="1"{% endif %}>
+                                <input type="hidden" name="items[{{ loop.index0 }}][item_id]" value="{{ item.item_id }}">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-box me-2"></i>Item #{{ loop.index }}
+                                        {% if item.has_production %}
+                                        <span class="badge bg-warning text-dark ms-2">
+                                            <i class="fas fa-industry me-1"></i>Production Started
+                                        </span>
+                                        {% endif %}
+                                    </h6>
+                                    {% if item.has_production %}
+                                    <button type="button" class="btn btn-remove-item btn-sm" disabled 
+                                            title="Cannot delete - Production already started for this item"
+                                            style="opacity: 0.5; cursor: not-allowed;">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-remove-item btn-sm" onclick="removeItem(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Size *</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][size]" 
+                                               value="{{ item.size }}" required
+                                               placeholder="e.g., 69mm x 72 Yard"
+                                               {% if item.has_production %}readonly title="Cannot edit - Production started"{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Quantity *</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][qty]" 
+                                               value="{{ item.qty }}" required
+                                               placeholder="e.g., 10 Ctn"
+                                               {% if item.has_production %}readonly title="Cannot edit - Production started"{% endif %}>
+                                    </div>
+                                    <div class="col-md-1 mb-3">
+                                        <label class="form-label">Micron</label>
+                                        <input type="number" class="form-control" 
+                                               name="items[{{ loop.index0 }}][micron]" 
+                                               value="{{ item.micron }}" 
+                                               placeholder="37" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Brand</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][brand]" 
+                                               value="{{ item.brand }}" 
+                                               placeholder="Brand" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Colour</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][colour]" 
+                                               value="{{ item.colour }}" 
+                                               placeholder="Clear" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Variety</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][variety]" 
+                                               value="{{ item.variety }}" 
+                                               placeholder="Type" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Packing</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][packing]" 
+                                               value="{{ item.packing }}" 
+                                               placeholder="48" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Printed Matter</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][printed_matter]" 
+                                               value="{{ item.printed_matter }}" 
+                                               placeholder="Optional printing details" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Unit Price</label>
+                                        <input type="number" step="0.01" class="form-control" 
+                                               name="items[{{ loop.index0 }}][unit_price]" 
+                                               value="{{ item.unit_price }}" 
+                                               placeholder="0.00" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Amount</label>
+                                        <input type="number" step="0.01" class="form-control" 
+                                               name="items[{{ loop.index0 }}][amount]" 
+                                               value="{{ item.amount }}" 
+                                               placeholder="0.00" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label class="form-label">Notes</label>
+                                        <input type="text" class="form-control" 
+                                               name="items[{{ loop.index0 }}][notes]" 
+                                               value="{{ item.notes }}" 
+                                               placeholder="Optional notes" {% if item.has_production %}readonly{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex gap-3 justify-content-center mb-4">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fas fa-save me-2"></i>Update Order
+                        </button>
+                        <a href="/orders/details/{{ order.order_no }}" class="btn btn-cancel">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <a href="/orders" class="btn btn-cancel">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let itemCounter = {{ items|length }};
+        
+        function addNewItem() {
+            const container = document.getElementById('itemsContainer');
+            const newItemHtml = `
+                <div class="item-row" data-item-index="${itemCounter}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="fas fa-box me-2"></i>Item #${itemCounter + 1}
+                        </h6>
+                        <button type="button" class="btn btn-remove-item btn-sm" onclick="removeItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Size *</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][size]" 
+                                   required placeholder="e.g., 69mm x 72 Yard">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Quantity *</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][qty]" 
+                                   required placeholder="e.g., 10 Ctn">
+                        </div>
+                        <div class="col-md-1 mb-3">
+                            <label class="form-label">Micron</label>
+                            <input type="number" class="form-control" 
+                                   name="items[${itemCounter}][micron]" 
+                                   value="37" placeholder="37">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][brand]" 
+                                   placeholder="Brand">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Colour</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][colour]" 
+                                   placeholder="Clear">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Variety</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][variety]" 
+                                   placeholder="Type">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Packing</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][packing]" 
+                                   value="48" placeholder="48">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Printed Matter</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][printed_matter]" 
+                                   placeholder="Optional printing details">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Unit Price</label>
+                            <input type="number" step="0.01" class="form-control" 
+                                   name="items[${itemCounter}][unit_price]" 
+                                   value="0" placeholder="0.00">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Amount</label>
+                            <input type="number" step="0.01" class="form-control" 
+                                   name="items[${itemCounter}][amount]" 
+                                   value="0" placeholder="0.00">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Notes</label>
+                            <input type="text" class="form-control" 
+                                   name="items[${itemCounter}][notes]" 
+                                   placeholder="Optional notes">
+                        </div>
+                    </div>
+                    <input type="hidden" name="items[${itemCounter}][item_id]" value="">
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', newItemHtml);
+            itemCounter++;
+            updateItemNumbers();
+        }
+        
+        function removeItem(button) {
+            // Check if button is disabled (production item)
+            if (button.disabled) {
+                alert('❌ Cannot delete this item!\n\nReason: Production has already started for this item.\n\nTo modify this item, first stop/reverse the production process.');
+                return;
+            }
+            
+            const allItems = document.querySelectorAll('.item-row, .item-container');
+            
+            // Count only deletable items (non-production items)
+            const deletableItems = document.querySelectorAll('.item-row:not(.has-production), .item-container:not(.has-production)');
+            
+            // Don't allow removal if only one deletable item left
+            if (deletableItems.length <= 1) {
+                alert('At least one item is required! Cannot remove the last deletable item.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to remove this item?')) {
+                const itemToRemove = button.closest('.item-row') || button.closest('.item-container');
+                itemToRemove.remove();
+                updateItemNumbers();
+            }
+        }
+        
+        function updateItemNumbers() {
+            const items = document.querySelectorAll('.item-row, .item-container');
+            items.forEach((item, index) => {
+                const header = item.querySelector('h6');
+                if (header) {
+                    header.innerHTML = `<i class="fas fa-box me-2"></i>Item #${index + 1}`;
+                }
+            });
+        }
+        
+        // Form submission handling
+        document.getElementById('editOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation
+            const items = document.querySelectorAll('.item-row');
+            let hasValidItem = false;
+            
+            items.forEach(item => {
+                const size = item.querySelector('input[name*="[size]"]').value.trim();
+                const qty = item.querySelector('input[name*="[qty]"]').value.trim();
+                
+                if (size && qty) {
+                    hasValidItem = true;
+                }
+            });
+            
+            if (!hasValidItem) {
+                alert('Please add at least one item with Size and Quantity!');
+                return false;
+            }
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Get order number from URL
+            const orderNo = window.location.pathname.split('/').pop();
+            
+            // Convert to JSON
+            const jsonData = {
+                order_no: orderNo,  // Add order number to JSON data
+                order_date: formData.get('order_date'),
+                customer_name: formData.get('customer_name'),
+                customer_phone: formData.get('customer_phone'),
+                customer_address: formData.get('customer_address'),
+                status: formData.get('status'),
+                items: {}
+            };
+            
+            // Handle items array
+            formData.forEach((value, key) => {
+                if (key.includes('items[')) {
+                    const matches = key.match(/items\[(\d+)\]\[(\w+)\]/);
+                    if (matches) {
+                        const index = matches[1];
+                        const field = matches[2];
+                        if (!jsonData.items[index]) jsonData.items[index] = {};
+                        jsonData.items[index][field] = value;
+                    }
+                }
+            });
+            
+            // Show loading
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            // Send AJAX request
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    alert(data.message);
+                    // Redirect to order details using order number from response
+                    window.location.href = `/orders/details/${data.order_no}`;
+                } else {
+                    // Show error message
+                    alert('Error: ' + data.error);
+                    // Reset button
+                    submitBtn.innerHTML = originalBtnHtml;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating order. Please try again.');
+                // Reset button
+                submitBtn.innerHTML = originalBtnHtml;
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html> 

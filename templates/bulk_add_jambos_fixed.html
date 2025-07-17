@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Add Jambo Rolls{% endblock %}
+
+{% block content %}
+<style>
+    .table td, .table th {
+        padding: 0.5rem;
+        vertical-align: middle;
+        font-size: 13px;
+    }
+    
+    .table input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        font-size: 12px;
+        text-align: center;
+    }
+    
+    .table input:focus {
+        outline: 2px solid #007bff;
+        background: #f8f9fa;
+    }
+    
+    .jambo-no-input {
+        font-weight: bold;
+        color: #e74c3c;
+    }
+    
+    .auto-calc {
+        background: #e8f5e8 !important;
+        font-weight: bold;
+    }
+    
+    .common-fields {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .actions-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">📦 Bulk Add Jambo Rolls</h2>
+                    <p class="text-muted mb-0">Add multiple jambo rolls efficiently</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-info fs-6" id="rowCounter">0 Rows</span>
+                </div>
+            </div>
+
+            <!-- Common Fields -->
+            <div class="common-fields">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">📅 Date *</label>
+                        <input type="date" class="form-control" id="commonDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">🏭 Party Name *</label>
+                        <select class="form-select" id="commonParty" required>
+                            <option value="">Select Party</option>
+                            <option value="Universal Coating Films Pvt Ltd">Universal Coating Films Pvt Ltd</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">📋 Challan No</label>
+                        <input type="text" class="form-control" id="commonChallan" placeholder="Auto-Generated">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">📄 Party Challan No</label>
+                        <input type="text" class="form-control" id="partyChallan" placeholder="Optional">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Row Button -->
+            <div class="text-center mb-3">
+                <button class="btn btn-success" onclick="addNewRow()">
+                    <i class="fas fa-plus"></i> ➕ Add Row
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="row">
+                <!-- Table Section -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">📋 Jambo Details</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 60px;">No.</th>
+                                        <th>Jambo No. *</th>
+                                        <th>Size MM *</th>
+                                        <th>Size Meter *</th>
+                                        <th>Colour</th>
+                                        <th>Micron</th>
+                                        <th>Roll No</th>
+                                        <th>Weight KG</th>
+                                        <th>Rate</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulkTableBody">
+                                    <!-- Rows will be added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="col-lg-4">
+                    <div class="actions-card">
+                        <h6 class="mb-3">⚡ Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="saveBulkJambos()">
+                                <i class="fas fa-save me-2"></i>💾 Save All Jambos
+                            </button>
+                            <button class="btn btn-warning" onclick="clearAll()">
+                                <i class="fas fa-trash me-2"></i>🗑️ Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rowCount = 0;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('commonDate').value = new Date().toISOString().split('T')[0];
+        
+        // Add initial rows
+        for(let i = 0; i < 5; i++) {
+            addNewRow();
+        }
+    });
+
+    function addNewRow() {
+        rowCount++;
+        const tbody = document.getElementById('bulkTableBody');
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td class="text-center">${rowCount}</td>
+            <td><input type="number" class="jambo-no-input" placeholder="1001"></td>
+            <td><input type="number" placeholder="1280"></td>
+            <td><input type="number" step="0.01" placeholder="4000"></td>
+            <td><input type="text" placeholder="Clear" value="Clear"></td>
+            <td><input type="number" placeholder="37" value="37"></td>
+            <td><input type="number" placeholder="1" value="1"></td>
+            <td><input type="number" step="0.01" placeholder="185"></td>
+            <td><input type="number" step="0.01" placeholder="750" value="750"></td>
+            <td><button class="btn btn-sm btn-danger" onclick="removeRow(this)"><i class="fas fa-times"></i></button></td>
+        `;
+        
+        tbody.appendChild(row);
+        updateRowCounter();
+    }
+
+    function removeRow(btn) {
+        btn.closest('tr').remove();
+        updateRowNumbers();
+    }
+
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('#bulkTableBody tr');
+        rows.forEach((row, index) => {
+            row.querySelector('td:first-child').textContent = index + 1;
+        });
+        rowCount = rows.length;
+        updateRowCounter();
+    }
+
+    function updateRowCounter() {
+        document.getElementById('rowCounter').textContent = rowCount + ' Rows';
+    }
+        
+    function saveBulkJambos() {
+        const date = document.getElementById('commonDate').value;
+        const party = document.getElementById('commonParty').value;
+        const challan = document.getElementById('commonChallan').value;
+        
+        if (!date || !party) {
+            alert('⚠️ Please fill Date and Party Name first');
+            return;
+        }
+        
+        const rows = [];
+        document.querySelectorAll('#bulkTableBody tr').forEach(row => {
+            const cells = row.querySelectorAll('td');
+            
+            const jamboNo = cells[1].querySelector('input').value;
+            const sizeMM = cells[2].querySelector('input').value;
+            const sizeMeter = cells[3].querySelector('input').value;
+            const colour = cells[4].querySelector('input').value;
+            const micron = cells[5].querySelector('input').value;
+            const rollNo = cells[6].querySelector('input').value;
+            const weight = cells[7].querySelector('input').value;
+            const rate = cells[8].querySelector('input').value;
+            
+            if (jamboNo && sizeMM && sizeMeter) {
+                rows.push({
+                    jambo_no: parseInt(jamboNo),
+                    size_mm: parseInt(sizeMM),
+                    size_meter: parseFloat(sizeMeter),
+                    colour: colour || 'CLEAR',
+                    micron: parseInt(micron) || 37,
+                    roll_no: parseInt(rollNo) || 1,
+                    net_weight: parseFloat(weight) || 0,
+                    rate_kg: parseFloat(rate) || 0
+                });
+            }
+        });
+        
+        if (rows.length === 0) {
+            alert('⚠️ Please fill at least one complete row');
+            return;
+        }
+        
+        if (confirm('💾 Save ' + rows.length + ' jambos for ' + party + '?')) {
+            fetch('/jambos/bulk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: date,
+                    party_name: party,
+                    challan_no: challan,
+                    rows: rows
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Success! ' + data.added + ' jambos added successfully!');
+                    window.location.href = '/jambos';
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Error: ' + error);
+            });
+        }
+    }
+    
+    function clearAll() {
+        if (confirm('🗑️ Clear all entries?')) {
+            document.getElementById('bulkTableBody').innerHTML = '';
+            rowCount = 0;
+            
+            for(let i = 0; i < 5; i++) {
+                addNewRow();
+            }
+        }
+    }
+</script>
+{% endblock %} 

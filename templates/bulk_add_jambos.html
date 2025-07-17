@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Add Jambo Rolls - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Dropdown submenu styles */
+        .nav-item.dropdown {
+            position: relative;
+        }
+        
+        .submenu {
+            display: none;
+            background-color: rgba(0,0,0,0.2);
+            margin-left: 0;
+            border-radius: 0;
+        }
+        
+        .nav-item.dropdown:hover .submenu {
+            display: block;
+        }
+        
+        .submenu .nav-link {
+            padding: 10px 15px 10px 45px;
+            font-size: 14px;
+            border-left: 2px solid transparent;
+        }
+        
+        .submenu .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 2px solid #ffc107;
+            transform: translateX(3px);
+        }
+        
+        .submenu .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            border-left: 2px solid #ffc107;
+        }
+        
+        .nav-item.dropdown .nav-link i.dropdown-arrow {
+            margin-left: auto;
+            margin-right: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item.dropdown:hover .nav-link i.dropdown-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+        
+        /* Jambo Header Section - Similar to order header */
+        .jambo-header {
+            background: linear-gradient(135deg, #667eea 0%, #11057a 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .jambo-header h3 {
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        /* Items Table Section - Similar to order items */
+        .items-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .items-table {
+            font-size: 12px;
+        }
+        .items-table input {
+            font-size: 11px;
+            padding: 2px 4px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: center;
+        }
+        .items-table input:focus {
+            outline: 2px solid #007bff;
+            background: #f8f9fa;
+        }
+        .items-table th {
+            background-color: #495057;
+            color: white;
+            font-size: 11px;
+            padding: 8px 5px;
+            text-align: center;
+        }
+        .items-table td {
+            padding: 2px;
+            vertical-align: middle;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .auto-calc {
+            background-color: #e8f5e8 !important;
+            font-weight: bold;
+        }
+        
+        .jambo-no-input {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        /* Total Section - Similar to order total */
+        .total-section {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        /* Action buttons styling */
+        .action-buttons {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/jambos">
+                    <i class="fas fa-film"></i>
+                    Jambo Rolls
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu" style="display: block;">
+                    <a class="nav-link" href="/jambos">
+                        <i class="fas fa-list"></i>
+                        View All Jambos
+                    </a>
+                    <a class="nav-link active" href="/jambos/bulk">
+                        <i class="fas fa-layer-group"></i>
+                        Bulk Add Jambos
+                    </a>
+                    <a class="nav-link" href="/jambos/excel-import">
+                        <i class="fas fa-file-excel"></i>
+                        Excel Import (Old Stock)
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Customer Orders Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    Customer Orders
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-list"></i>
+                        View All Orders
+                    </a>
+                    <a class="nav-link" href="/orders/add">
+                        <i class="fas fa-user-plus"></i>
+                        New Order
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Production Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/production">
+                    <i class="fas fa-industry"></i>
+                    Production  
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <a class="nav-link" href="/production">
+                        <i class="fas fa-cogs"></i>
+                        Smart Production
+                    </a>
+                    <a class="nav-link" href="/production">
+                        <i class="fas fa-list"></i>
+                        Production List
+                    </a>
+                </div>
+            </div>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px;">
+            
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            <a class="nav-link" href="#">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-light mobile-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2">
+                    <i class="fas fa-layer-group text-primary"></i>
+                    Bulk Add Jambo Rolls - Multiple Jambo Entry
+                </h5>
+            </div>
+            <div>
+                <span class="badge bg-info fs-6 me-2" id="rowCounter">0 Rows</span>
+                <a href="/jambos" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Jambos
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Quick Tips -->
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb"></i> <strong>Quick Tips:</strong> 
+                Press <kbd>Ctrl+I</kbd> to add new jambo row | Auto Jambo Number generation | Tab to navigate quickly
+            </div>
+
+            <!-- Jambo Header -->
+            <div class="jambo-header">
+                <h3><i class="fas fa-file-invoice"></i> Jambo Details Header</h3>
+                <form id="jamboForm" class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Date *</label>
+                        <input type="date" class="form-control" id="commonDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-industry"></i> Party Name (Supplier) *</label>
+                        <div class="input-group">
+                            <div class="position-relative flex-grow-1">
+                                <input type="text" id="commonParty" class="form-control" 
+                                       placeholder="Type to search suppliers..." 
+                                       autocomplete="off" 
+                                       required>
+                                <div id="partyDropdown" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto; display: none;">
+                                    <!-- Suppliers will be loaded here -->
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddPartyModal()" title="Add New Supplier">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="window.location.href='/parties'" title="Manage Party Types">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">Type to search suppliers or click <i class="fas fa-cog"></i> to manage party types</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-receipt"></i> Challan No</label>
+                        <input type="text" class="form-control" id="commonChallan" placeholder="Auto-Generated" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-file-alt"></i> Party Challan No</label>
+                        <input type="text" class="form-control" id="partyChallan" placeholder="Optional">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Jambo Items Section -->
+            <div class="items-section">
+                <div class="d-flex justify-content-between align-items-center p-3 bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-film"></i>
+                        Jambo Items - Press Ctrl+I to add jambo
+                    </h4>
+                    <div>
+                        <button type="button" class="btn btn-light btn-sm me-2" onclick="addNewRow()">
+                            <i class="fas fa-plus"></i> Add Row
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table table-striped items-table mb-0" id="jamboTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No.</th>
+                                <th style="width: 120px;">Jambo No. *</th>
+                                <th style="width: 100px;">Size MM *</th>
+                                <th style="width: 120px;">Size Meter *</th>
+                                <th style="width: 100px;">Colour</th>
+                                <th style="width: 80px;">Micron</th>
+                                <th style="width: 80px;">Roll No</th>
+                                <th style="width: 100px;">Weight KG</th>
+                                <th style="width: 80px;">Rate</th>
+                                <th style="width: 100px;">Calc Yard</th>
+                                <th style="width: 80px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkTableBody">
+                            <!-- Items will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Total Section -->
+            <div class="total-section">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5><i class="fas fa-calculator"></i> Jambo Summary</h5>
+                        <p class="mb-1">Total Jambos: <span id="totalJambos">0</span></p>
+                        <p class="mb-1">Total Weight: <span id="totalWeight">0</span> KG</p>
+                        <p class="mb-0">Fill jambo details to see complete summary</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h3 class="text-success">
+                            <i class="fas fa-rupee-sign"></i>
+                            Total Value: Rs. <span id="totalValue">0</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <div class="row">
+                    <div class="col-md-8">
+                        <button type="button" class="btn btn-info me-2" onclick="previewChallan()" id="previewBtn">
+                            <i class="fas fa-eye"></i> Preview Challan
+                        </button>
+                        <button type="button" class="btn btn-primary me-2" onclick="showFindChallanModal()" id="findBtn">
+                            <i class="fas fa-search"></i> Find & Edit Challan
+                        </button>
+                        <button type="button" class="btn btn-warning me-2" onclick="clearAll()">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button type="button" class="btn btn-success me-2" onclick="console.log('🔴 BUTTON CLICKED!'); testFunction(); saveBulkJambos();" id="saveBtn">
+                            <i class="fas fa-save"></i> Save All Jambos
+                        </button>
+                        <!-- New Update Button for Edit Mode -->
+                        <button type="button" class="btn btn-warning me-2" onclick="updateCurrentChallan();" id="updateBtn" style="display: none;">
+                            <i class="fas fa-sync"></i> Update Challan
+                        </button>
+                        <button type="button" class="btn btn-info me-2" onclick="newEntry()" id="newBtn" style="display: none;">
+                            <i class="fas fa-plus"></i> New Entry
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/jambos'">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Party Modal -->
+    <div class="modal fade" id="addPartyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Add New Party/Supplier
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="partyForm">
+                        <div class="mb-3">
+                            <label class="form-label">Party Name *</label>
+                            <input type="text" class="form-control" id="newPartyName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="newPartyPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="newPartyEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="newPartyAddress" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" id="newPartyCity">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="newPartyType">
+                                <option value="Supplier">Supplier</option>
+                                <option value="Customer">Customer</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addNewParty()">
+                        <i class="fas fa-save me-2"></i>Save Party
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challan Preview Modal -->
+    <div class="modal fade" id="challanPreviewModal" tabindex="-1" aria-labelledby="challanPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title" id="challanPreviewModalLabel">
+                        <i class="fas fa-file-invoice me-2"></i>Delivery Challan Preview
+                    </h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="challanPreviewBody">
+                    <!-- Preview content will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="downloadChallanPDF()">
+                        <i class="fas fa-file-pdf me-2"></i>Save as PDF
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="confirmAndSave()" id="confirmSaveBtn">
+                        <i class="fas fa-save me-2"></i>Save & Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Find & Edit Challan Modal -->
+    <div class="modal fade" id="findChallanModal" tabindex="-1" aria-labelledby="findChallanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title" id="findChallanModalLabel">
+                        <i class="fas fa-search me-2"></i>Find & Edit Existing Challan
+                    </h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search Filters -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Challan No</label>
+                            <input type="text" class="form-control" id="searchChallanNo" placeholder="0001, 0002... (partial OK)">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Party Name</label>
+                            <input type="text" class="form-control" id="searchPartyName" placeholder="ali, saddrudin... (partial OK)">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date From</label>
+                            <input type="text" class="form-control" id="searchDateFrom" placeholder="2025-06-29 or 2025-06">
+                            <small class="text-muted">Any format: 2025-06, 29-06-2025</small>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date To</label>
+                            <input type="text" class="form-control" id="searchDateTo" placeholder="2025-06-29 or 2025-06">
+                            <small class="text-muted">Any format: 2025-06, 29-06-2025</small>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-12 text-center">
+                            <button type="button" class="btn btn-primary me-2" onclick="searchChallans()">
+                                <i class="fas fa-search me-2"></i>Search Challans
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="clearSearchFilters()">
+                                <i class="fas fa-eraser me-2"></i>Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Results -->
+                    <div id="searchResultsContainer" style="display: none;">
+                        <h5><i class="fas fa-list"></i> Search Results</h5>
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Challan No</th>
+                                        <th>Date</th>
+                                        <th>Party Name</th>
+                                        <th>Total Items</th>
+                                        <th>Total Weight</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="searchResultsBody">
+                                    <!-- Results will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let rowCount = 0;
+        let currentJamboNumber = 1021; // Start from 1021 since 1020 is used
+        let partyList = [];
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date
+            document.getElementById('commonDate').value = new Date().toISOString().split('T')[0];
+            
+            // Generate challan number
+            generateAutoChallan();
+            
+            // Load parties/suppliers
+            loadParties();
+            
+            // Load next jambo number and add exactly 10 rows
+            loadNextJamboNumber();
+            
+            // Initialize in Save mode (ensure proper button state)
+            switchToSaveMode();
+            
+            // Add keyboard shortcut for adding row
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'i') {
+                    e.preventDefault();
+                    addNewRow();
+                }
+            });
+            
+            // Add click handler for Add New Party button
+            document.querySelector('.add-party-btn').addEventListener('click', showAddPartyModal);
+            
+            // Roman Urdu: Har row ke Size Meter input par event lagao taki Calc Yard hamesha update ho
+            addSizeMeterListeners();
+        });
+
+        function loadParties() {
+            fetch('/api/parties/list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.allParties = data.parties || [];
+                        console.log('Loaded parties:', window.allParties);
+                        
+                        if (window.allParties.length === 0) {
+                            showToast('No suppliers found. Please add a supplier first.', 'warning');
+                            document.getElementById('commonParty').placeholder = 'No suppliers found';
+                        } else {
+                            // Setup party search dropdown
+                            setupPartySearchDropdown();
+                        }
+                    } else {
+                        showToast('Error loading suppliers: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error loading suppliers', 'error');
+                });
+        }
+
+        function setupPartySearchDropdown() {
+            const input = document.getElementById('commonParty');
+            const dropdown = document.getElementById('partyDropdown');
+            let selectedIndex = -1;
+            
+            // Show dropdown on focus
+            input.addEventListener('focus', function() {
+                showPartyDropdown();
+                filterParties(this.value);
+            });
+            
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    hidePartyDropdown();
+                }
+            });
+            
+            // Handle input changes for search
+            input.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterParties(searchTerm);
+                selectedIndex = -1;
+                showPartyDropdown();
+            });
+            
+            // Handle keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.dropdown-item:not(.d-none)');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    updatePartySelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
+                    updatePartySelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && items[selectedIndex]) {
+                        selectParty(items[selectedIndex].textContent);
+                    }
+                } else if (e.key === 'Escape') {
+                    hidePartyDropdown();
+                }
+            });
+        }
+
+        function showPartyDropdown() {
+            const dropdown = document.getElementById('partyDropdown');
+            dropdown.style.display = 'block';
+            dropdown.classList.add('show');
+        }
+
+        function hidePartyDropdown() {
+            const dropdown = document.getElementById('partyDropdown');
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('show');
+        }
+
+        function filterParties(searchTerm) {
+            const dropdown = document.getElementById('partyDropdown');
+            dropdown.innerHTML = '';
+            
+            if (!window.allParties || window.allParties.length === 0) {
+                dropdown.innerHTML = '<div class="dropdown-item text-muted">No parties found</div>';
+                return;
+            }
+            
+            const filteredParties = window.allParties.filter(party => 
+                party.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            if (filteredParties.length === 0) {
+                dropdown.innerHTML = '<div class="dropdown-item text-muted">No matches found</div>';
+                return;
+            }
+            
+            filteredParties.forEach(party => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.style.cursor = 'pointer';
+                item.textContent = party;
+                
+                // Highlight search term
+                if (searchTerm) {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    item.innerHTML = party.replace(regex, '<mark>$1</mark>');
+                }
+                
+                item.addEventListener('click', function() {
+                    selectParty(party);
+                });
+                
+                dropdown.appendChild(item);
+            });
+        }
+
+        function selectParty(partyName) {
+            const input = document.getElementById('commonParty');
+            input.value = partyName;
+            hidePartyDropdown();
+        }
+
+        function updatePartySelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function loadNextJamboNumber() {
+            fetch('/api/next-jambo-number')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentJamboNumber = data.next_jambo_no;
+                        console.log('Next jambo number:', currentJamboNumber);
+                        
+                        // Clear existing rows first
+                        document.getElementById('bulkTableBody').innerHTML = '';
+                        rowCount = 0;
+                        
+                        // Add exactly 10 rows
+                        for (let i = 0; i < 10; i++) {
+                            addNewRow();
+                        }
+                    } else {
+                        showToast('Error getting next jambo number', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error getting next jambo number', 'error');
+                    
+                    // Add 10 rows with default starting number
+                    document.getElementById('bulkTableBody').innerHTML = '';
+                    rowCount = 0;
+                    for (let i = 0; i < 10; i++) {
+                        addNewRow();
+                    }
+                });
+        }
+
+        function addNewRow() {
+            const tbody = document.getElementById('bulkTableBody');
+            const newRow = document.createElement('tr');
+            rowCount++;
+            const jamboNo = currentJamboNumber + rowCount - 1;
+            const defaultSizeMeter = 4000;
+            const calcYard = (defaultSizeMeter * 1.08325).toFixed(2);
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="number" class="form-control form-control-sm text-center text-danger fw-bold" value="${jamboNo}" readonly style="background-color: #f8f9fa;"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="1280"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="${defaultSizeMeter}"></td>
+                <td><input type="text" class="form-control form-control-sm text-center" value="TAN"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="37"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="10"></td>
+                <td><input type="number" step="0.01" class="form-control form-control-sm text-center weight-input" value="185"></td>
+                <td><input type="number" step="0.01" class="form-control form-control-sm text-center rate-input" value="665"></td>
+                <td><input type="number" class="form-control form-control-sm text-center yard-input" value="${calcYard}" readonly></td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            updateRowCounter();
+            setupRowEventListeners(newRow);
+            updateTotals();
+            updateCalcYard(newRow);
+            // Roman Urdu: Nayi row ke Size Meter input par event lagao
+            const sizeMeterInput = newRow.cells[3].querySelector('input');
+            if (sizeMeterInput) {
+                sizeMeterInput.addEventListener('input', function() {
+                    updateCalcYard(newRow);
+                    // Roman Urdu: Niche wali rows mai value copy karo aur Calc Yard bhi update karo
+                    const value = this.value;
+                    const currentRowIndex = Array.from(newRow.parentNode.children).indexOf(newRow);
+                    const allRows = document.querySelectorAll('#bulkTableBody tr');
+                    for (let i = currentRowIndex + 1; i < allRows.length; i++) {
+                        const sameColumnInput = allRows[i].cells[3].querySelector('input');
+                        if (sameColumnInput && !sameColumnInput.readOnly) {
+                            sameColumnInput.value = value;
+                            updateCalcYard(allRows[i]);
+                        }
+                    }
+                });
+            }
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+            const jamboInput = row.cells[1].querySelector('input');
+            const jamboNo = jamboInput.value.trim();
+            
+            // Check if this is edit mode and jambo has production
+            if (window.currentEditingChallan && jamboNo) {
+                // Check if jambo has production
+                fetch(`/api/jambo/production-check/${jamboNo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.has_production) {
+                        showToast(`❌ Jambo ${jamboNo} delete nahi ho sakta kyunki isse production hui hai!`, 'error');
+                        return;
+                    } else {
+                        // Safe to delete
+                        row.remove();
+                        updateRowCounter();
+                        updateTotals();
+                        showToast(`✅ Jambo ${jamboNo} row delete ho gayi`, 'success');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking production:', error);
+                    // If error, allow deletion for safety
+                    row.remove();
+                    updateRowCounter();
+                    updateTotals();
+                });
+            } else {
+                // Not in edit mode or no jambo number, safe to delete
+                row.remove();
+                updateRowCounter();
+                updateTotals();
+            }
+        }
+
+        function calculateYards(input) {
+            const row = input.closest('tr');
+            const sizeMeter = parseFloat(row.cells[3].querySelector('input').value) || 0;
+            
+            if (sizeMeter > 0) {
+                // Yard calculation: 1 meter × 1.08325
+                const calcYard = (sizeMeter * 1.08325).toFixed(2);
+                row.cells[9].querySelector('input').value = calcYard;
+            }
+            
+            updateTotals();
+        }
+
+        // Copy Size MM to all rows
+        function copySizeMMToAll(input) {
+            const value = input.value;
+            const allSizeMMInputs = document.querySelectorAll('.size-mm-input');
+            
+            allSizeMMInputs.forEach(sizeInput => {
+                if (sizeInput !== input) {
+                    sizeInput.value = value;
+                    // Trigger calculation for each row
+                    calculateYards(sizeInput.closest('tr').cells[3].querySelector('input'));
+                }
+            });
+            
+            // Calculate yards for current row too
+            calculateYards(input.closest('tr').cells[3].querySelector('input'));
+        }
+
+        // Copy value to rows below
+        function copyToRowsBelow(input) {
+            const currentRow = input.closest('tr');
+            const currentRowIndex = Array.from(currentRow.parentNode.children).indexOf(currentRow);
+            const cellIndex = Array.from(currentRow.children).indexOf(input.closest('td'));
+            const value = input.value;
+            
+            const allRows = document.querySelectorAll('#bulkTableBody tr');
+            
+            // Copy to all rows below current row
+            for (let i = currentRowIndex + 1; i < allRows.length; i++) {
+                const targetInput = allRows[i].cells[cellIndex].querySelector('input');
+                if (targetInput && !targetInput.readOnly) {
+                    targetInput.value = value;
+                    
+                    // If it's size meter, calculate yards
+                    if (cellIndex === 3) {
+                        calculateYards(targetInput);
+                    }
+                }
+            }
+            
+            updateTotals();
+        }
+
+        function calculateValue(input) {
+            const row = input.closest('tr');
+            const weight = parseFloat(row.cells[7].querySelector('input').value) || 0;
+            const rate = parseFloat(row.cells[8].querySelector('input').value) || 0;
+            
+            updateTotals();
+        }
+
+        function updateRowCounter() {
+            const rows = document.querySelectorAll('#bulkTableBody tr').length;
+            document.getElementById('rowCounter').textContent = rows + ' Rows';
+        }
+
+        function updateTotals() {
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            let totalJambos = rows.length;
+            let totalWeight = 0;
+            let totalValue = 0;
+
+            rows.forEach(row => {
+                const weight = parseFloat(row.cells[7].querySelector('input').value) || 0;
+                const rate = parseFloat(row.cells[8].querySelector('input').value) || 0;
+                totalWeight += weight;
+                totalValue += (weight * rate);
+            });
+
+            document.getElementById('totalJambos').textContent = totalJambos;
+            document.getElementById('totalWeight').textContent = totalWeight.toFixed(2);
+            document.getElementById('totalValue').textContent = totalValue.toFixed(2);
+        }
+
+        // Auto-generate challan starting from CH-0001
+        function generateAutoChallan() {
+            fetch('/api/next-challan-number')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('commonChallan').value = data.next_challan_no;
+                    } else {
+                        // Fallback - generate next challan number
+                        const challanInput = document.getElementById('commonChallan');
+                        if (!challanInput.value) {
+                            challanInput.value = 'CH-0003'; // Start from CH-0003 since CH-0002 exists
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback challan number
+                    const challanInput = document.getElementById('commonChallan');
+                    if (!challanInput.value) {
+                        challanInput.value = 'CH-0003';
+                    }
+                });
+        }
+
+        function autoGenerateChallan() {
+            const now = new Date();
+            const challanNo = 'JMB-' + now.getTime().toString().slice(-6);
+            document.getElementById('commonChallan').value = challanNo;
+        }
+
+        function autoGenerateJamboNumbers() {
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            let jamboNum = currentJamboNumber;
+            
+            rows.forEach(row => {
+                const jamboInput = row.cells[1].querySelector('input');
+                if (!jamboInput.value) {
+                    jamboInput.value = jamboNum++;
+                }
+            });
+            
+            currentJamboNumber = jamboNum;
+            showToast('Jambo numbers generated successfully!', 'success');
+        }
+
+        function previewChallan() {
+            // Get all jambo data for preview
+            const commonData = {
+                date: document.getElementById('commonDate').value,
+                party: document.getElementById('commonParty').value,
+                challan: document.getElementById('commonChallan').value,
+                partyChallan: document.getElementById('partyChallan').value
+            };
+
+            if (!commonData.date || !commonData.party) {
+                showToast('Please fill required fields: Date and Party', 'error');
+                return;
+            }
+
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            const jambos = [];
+
+            rows.forEach((row, index) => {
+                const jamboInput = row.cells[1].querySelector('input');
+                const sizeMMInput = row.cells[2].querySelector('input');
+                const sizeMeterInput = row.cells[3].querySelector('input');
+                
+                const jambo_no = jamboInput.value.trim() || jamboInput.placeholder;
+                const size_mm = sizeMMInput.value.trim() || sizeMMInput.placeholder;
+                const size_meter = sizeMeterInput.value.trim() || sizeMeterInput.placeholder;
+                
+                const jambo = {
+                    jambo_no: jambo_no,
+                    size_mm: size_mm,
+                    size_meter: size_meter,
+                    colour: row.cells[4].querySelector('input').value.trim() || 'Clear',
+                    micron: row.cells[5].querySelector('input').value.trim() || '37',
+                    roll_no: row.cells[6].querySelector('input').value.trim() || '1',
+                    weight_kg: row.cells[7].querySelector('input').value.trim() || '0',
+                    rate: row.cells[8].querySelector('input').value.trim() || '0',
+                    calc_yard: row.cells[9].querySelector('input').value.trim() || '0'
+                };
+
+                // Check if required fields have values
+                if (jambo_no && size_mm && size_meter) {
+                    jambos.push(jambo);
+                }
+            });
+
+            if (jambos.length === 0) {
+                showToast('Please add at least one jambo with required fields', 'error');
+                return;
+            }
+
+            // Send preview request
+            fetch('/api/jambos/bulk/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    common: commonData,
+                    jambos: jambos
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPreviewModal(data.preview_data);
+                } else {
+                    showToast('Error generating preview: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error generating preview', 'error');
+            });
+        }
+
+        // Test function to check if JavaScript is working
+        function testFunction() {
+            console.log('🧪 TEST: JavaScript is working!');
+            
+            // Test table row access
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            console.log('🔍 Total rows found:', rows.length);
+            
+            if (rows.length > 0) {
+                const firstRow = rows[0];
+                console.log('🔍 First row cells:', firstRow.cells.length);
+                
+                const jamboInput = firstRow.cells[1].querySelector('input');
+                const sizeMMInput = firstRow.cells[2].querySelector('input');
+                const sizeMeterInput = firstRow.cells[3].querySelector('input');
+                
+                console.log('🔍 First row values:');
+                console.log('  - Jambo No:', jamboInput ? jamboInput.value : 'NO INPUT');
+                console.log('  - Size MM:', sizeMMInput ? sizeMMInput.value : 'NO INPUT'); 
+                console.log('  - Size Meter:', sizeMeterInput ? sizeMeterInput.value : 'NO INPUT');
+            }
+            
+            alert('TEST: Check console for detailed logs!');
+        }
+
+        function saveBulkJambos() {
+            console.log('🚀 saveBulkJambos() function called!');
+            
+            const commonData = {
+                date: document.getElementById('commonDate').value,
+                party: document.getElementById('commonParty').value,
+                challan: document.getElementById('commonChallan').value,
+                partyChallan: document.getElementById('partyChallan').value
+            };
+
+            console.log('🔍 Common Data Retrieved:', commonData);
+            console.log('📅 Date field value:', document.getElementById('commonDate').value);
+            console.log('👥 Party field value:', document.getElementById('commonParty').value);
+
+            if (!commonData.date || !commonData.party) {
+                console.log('❌ Validation failed - missing date or party');
+                console.log('Date empty?', !commonData.date);
+                console.log('Party empty?', !commonData.party);
+                showToast('Please fill required fields: Date and Party', 'error');
+                return;
+            }
+
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            const jambos = [];
+
+            rows.forEach((row, index) => {
+                const jamboInput = row.cells[1].querySelector('input');
+                const sizeMMInput = row.cells[2].querySelector('input');
+                const sizeMeterInput = row.cells[3].querySelector('input');
+                
+                const jambo_no = jamboInput.value.trim() || jamboInput.placeholder;
+                const size_mm = sizeMMInput.value.trim() || sizeMMInput.placeholder;
+                const size_meter = sizeMeterInput.value.trim() || sizeMeterInput.placeholder;
+                
+                const jambo = {
+                    jambo_no: jambo_no,
+                    size_mm: size_mm,
+                    size_meter: size_meter,
+                    colour: row.cells[4].querySelector('input').value.trim() || 'Clear',
+                    micron: row.cells[5].querySelector('input').value.trim() || '37',
+                    roll_no: row.cells[6].querySelector('input').value.trim() || '1',
+                    weight_kg: row.cells[7].querySelector('input').value.trim() || '0',
+                    rate: row.cells[8].querySelector('input').value.trim() || '0',
+                    calc_yard: row.cells[9].querySelector('input').value.trim() || '0'
+                };
+
+                console.log(`🔍 Row ${index + 1} Debug:`, {
+                    jambo_no: jambo_no,
+                    size_mm: size_mm,
+                    size_meter: size_meter,
+                    jambo_no_valid: Boolean(jambo_no),
+                    size_mm_valid: Boolean(size_mm),
+                    size_meter_valid: Boolean(size_meter),
+                    will_include: Boolean(jambo_no && size_mm && size_meter)
+                });
+
+                // Check if required fields have values (including placeholder values)
+                if (jambo_no && size_mm && size_meter) {
+                    jambos.push(jambo);
+                    console.log(`✅ Added Jambo ${jambo_no} to list`);
+                } else {
+                    console.log(`❌ Skipped Row ${index + 1} - Missing required fields`);
+                }
+            });
+
+            if (jambos.length === 0) {
+                console.log('❌ Validation failed. No valid jambos found.');
+                console.log('🔍 Common Data:', commonData);
+                rows.forEach((row, index) => {
+                    const jamboNo = row.cells[1].querySelector('input').value.trim();
+                    const sizeMM = row.cells[2].querySelector('input').value.trim();
+                    const sizeMeter = row.cells[3].querySelector('input').value.trim();
+                    console.log(`Row ${index + 1}: Jambo No: "${jamboNo}", Size MM: "${sizeMM}", Size Meter: "${sizeMeter}"`);
+                });
+                showToast('Please add at least one jambo with required fields', 'error');
+                return;
+            }
+
+            const requestData = {
+                common: commonData,
+                jambos: jambos
+            };
+
+            console.log('🚀 Sending bulk save request:');
+            console.log('📦 Request Data:', requestData);
+            console.log(`📊 Total jambos to save: ${jambos.length}`);
+
+            // Save to backend
+            fetch('/api/jambos/bulk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+                })
+            .then(response => {
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', response.headers);
+                return response.json();
+            })
+            .then(data => {
+                console.log('📥 Response data:', data);
+                if (data.success) {
+                    console.log(`✅ Success! Saved ${data.saved_count} jambos`);
+                    showToast(`🎉 Successfully saved ${data.saved_count} jambos! Challan: ${data.challan_no}`, 'success');
+                    
+                    // Show success state instead of redirecting
+                    showSavedSuccessState(data);
+                    
+                } else {
+                    console.log('❌ API returned error:', data.error || data.message);
+                    showToast('Error saving jambos: ' + (data.error || data.message), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('💥 Fetch error:', error);
+                showToast('Error saving jambos', 'error');
+            });
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                document.getElementById('bulkTableBody').innerHTML = '';
+                document.getElementById('jamboForm').reset();
+                document.getElementById('commonDate').value = new Date().toISOString().split('T')[0];
+                rowCount = 0;
+                updateRowCounter();
+                updateTotals();
+                generateAutoChallan(); // Roman Urdu: Naya challan number bhi generate karo
+                addNewRow(); // Add one default row
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        function newEntry() {
+            // Clear all data
+            document.getElementById('bulkTableBody').innerHTML = '';
+            document.getElementById('jamboForm').reset();
+            document.getElementById('commonDate').value = new Date().toISOString().split('T')[0];
+            rowCount = 0;
+            
+            // Generate new challan number
+            generateAutoChallan();
+            
+            // Get fresh jambo number and add rows
+            loadNextJamboNumber();
+            
+            // Reset visual state
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                contentArea.style.opacity = '1';
+                contentArea.style.backgroundColor = '';
+            }
+            
+            const table = document.querySelector('#jamboTable');
+            if (table) {
+                table.style.border = '';
+                table.style.backgroundColor = '';
+            }
+            
+            // Remove success banner if exists
+            const existingBanner = document.querySelector('.alert-success');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+            
+            // Switch back to Save mode
+            switchToSaveMode();
+            
+            // Enable all inputs
+            const inputs = document.querySelectorAll('input, select, button');
+            inputs.forEach(input => {
+                if (!input.classList.contains('jambo-no')) {
+                    input.disabled = false;
+                    input.style.backgroundColor = '';
+                }
+            });
+        }
+
+        // Find & Edit Challan Functions
+        function setupDateInputs() {
+            // Set max date as today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('searchDateFrom').setAttribute('max', today);
+            document.getElementById('searchDateTo').setAttribute('max', today);
+            
+            // Update min/max dates when either date changes
+            document.getElementById('searchDateFrom').addEventListener('change', function() {
+                document.getElementById('searchDateTo').setAttribute('min', this.value);
+            });
+            
+            document.getElementById('searchDateTo').addEventListener('change', function() {
+                document.getElementById('searchDateFrom').setAttribute('max', this.value);
+            });
+        }
+
+        function showFindChallanModal() {
+            // Clear previous search results
+            document.getElementById('searchResultsContainer').style.display = 'none';
+            clearSearchFilters();
+            
+            // Setup date inputs
+            setupDateInputs();
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('findChallanModal'));
+            modal.show();
+            
+            // Auto-search recent challans when modal opens
+            setTimeout(() => {
+                searchChallans(true); // true = initial load
+            }, 500);
+            
+            // Add auto-search on input
+            setupAutoSearch();
+        }
+
+        function clearSearchFilters() {
+            document.getElementById('searchChallanNo').value = '';
+            document.getElementById('searchPartyName').value = '';
+            document.getElementById('searchDateFrom').value = '';
+            document.getElementById('searchDateTo').value = '';
+            document.getElementById('searchResultsContainer').style.display = 'none';
+        }
+
+        function formatDateForDisplay(dateStr) {
+            try {
+                // If date is already in DD-MM-YYYY format, return as is
+                if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+                    return dateStr;
+                }
+                
+                // Convert from YYYY-MM-DD to DD-MM-YYYY
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                    const [year, month, day] = dateStr.split('-');
+                    return `${day}-${month}-${year}`;
+                }
+                
+                // Try parsing as date object
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    return dateStr;
+                }
+                
+                return date.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                console.error('Date format error:', e);
+                return dateStr;
+            }
+        }
+
+        function searchChallans(isInitialLoad = false) {
+            const dateFrom = document.getElementById('searchDateFrom').value;
+            const dateTo = document.getElementById('searchDateTo').value;
+            
+            const filters = {
+                challan_no: document.getElementById('searchChallanNo').value.trim(),
+                party_name: document.getElementById('searchPartyName').value.trim(),
+                date_from: dateFrom,
+                date_to: dateTo
+            };
+
+            console.log('🔍 Searching with filters:', filters);
+
+            // Show loading only for manual searches
+            if (!isInitialLoad) {
+                showToast('🔍 Searching challans...', 'info');
+            }
+            
+            // Show loading in results container
+            const resultsContainer = document.getElementById('searchResultsContainer');
+            resultsContainer.style.display = 'block';
+            resultsContainer.innerHTML = `
+                <div class="text-center p-4">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                    <p>${isInitialLoad ? 'Loading recent challans...' : 'Searching...'}</p>
+                </div>
+            `;
+
+            // Call search API
+            fetch('/api/challans/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(filters)
+            })
+            .then(response => {
+                console.log('📡 Search response:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('📦 Search data:', data);
+                if (data.success) {
+                    if (data.message) {
+                        // Show message if provided (e.g. no records in database)
+                        resultsContainer.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                ${data.message}
+                            </div>
+                        `;
+                        return;
+                    }
+                    displaySearchResults(data.challans, isInitialLoad);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            Search failed: ${data.message}
+                        </div>
+                    `;
+                    if (!isInitialLoad) {
+                        showToast('Search failed: ' + data.message, 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('❌ Search error:', error);
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Error searching challans. Please try again.
+                    </div>
+                `;
+                if (!isInitialLoad) {
+                    showToast('Error searching challans', 'error');
+                }
+            });
+        }
+
+        function setupAutoSearch() {
+            const searchInputs = [
+                document.getElementById('searchChallanNo'),
+                document.getElementById('searchPartyName'),
+                document.getElementById('searchDateFrom'),
+                document.getElementById('searchDateTo')
+            ];
+            
+            searchInputs.forEach(input => {
+                // Remove existing listeners first
+                input.removeEventListener('input', autoSearchHandler);
+                // Add new listener
+                input.addEventListener('input', autoSearchHandler);
+            });
+        }
+
+        function autoSearchHandler() {
+            // Debounce the search - wait 500ms after user stops typing
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(() => {
+                searchChallans(false); // false = user triggered search
+            }, 500);
+        }
+
+        function displaySearchResults(challans, isInitialLoad = false) {
+            console.log('📊 Displaying results:', challans);
+            const resultsContainer = document.getElementById('searchResultsContainer');
+            
+            if (!challans || challans.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center p-4">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No Challans Found</h5>
+                        <p class="text-muted">
+                            ${isInitialLoad ? 'No challans exist yet.' : 'Try different search criteria.'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+                resultsContainer.innerHTML = `
+                <h5 class="mb-3">
+                    <i class="fas fa-list me-2"></i> 
+                        ${isInitialLoad ? 'Recent Challans' : 'Search Results'} 
+                        <span class="badge bg-primary">${challans.length}</span>
+                    </h5>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Challan No</th>
+                                    <th>Date</th>
+                                    <th>Party Name</th>
+                                    <th>Total Items</th>
+                                    <th>Total Weight</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                                ${challans.map(challan => `
+                                    <tr>
+                                        <td><strong class="text-primary">${challan.challan_no}</strong></td>
+                                    <td>${challan.date}</td>
+                                        <td><strong>${challan.party_name}</strong></td>
+                                        <td><span class="badge bg-secondary">${challan.total_items} items</span></td>
+                                        <td><strong>${challan.total_weight} KG</strong></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success me-1" onclick="loadChallanForEdit('${challan.challan_no}')">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteChallan('${challan.challan_no}', '${challan.party_name}')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+            resultsContainer.style.display = 'block';
+            
+            if (!isInitialLoad) {
+                showToast(`✅ Found ${challans.length} challan(s)`, 'success');
+            }
+        }
+
+        function loadChallanForEdit(challanNo) {
+            showToast('Loading challan for editing...', 'info');
+
+            fetch(`/api/challans/load/${challanNo}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close search modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('findChallanModal'));
+                    modal.hide();
+
+                    // Load data into form
+                    loadChallanData(data.challan_data);
+                    
+                    showToast(`✅ Challan ${challanNo} loaded for editing`, 'success');
+                } else {
+                    showToast('Failed to load challan: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading challan', 'error');
+            });
+        }
+
+        function deleteChallan(challanNo, partyName) {
+            // Confirmation dialog with production warning
+            const confirmMessage = `Kya aap challan ${challanNo} (${partyName}) ko delete karna chahte hain?\n\n⚠️  WARNING: Agar is challan ke kisi jambo se production ho chuki hai, to delete nahi hoga!\n\nPhele manually production delete karein, phir challan delete hoga.\n\nYe action permanent hai aur undo nahi ho sakta!`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            showToast('Deleting challan...', 'info');
+
+            fetch(`/api/challans/delete/${challanNo}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close search modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('findChallanModal'));
+                    modal.hide();
+                    
+                    // Show detailed success message
+                    let successMessage = `🗑️ ${data.message}`;
+                    if (data.production_deleted > 0) {
+                        successMessage += `\n⚠️ ${data.production_deleted} production orders bhi delete ho gaye!`;
+                    }
+                    
+                    showToast(successMessage, 'success');
+                    
+                    // Refresh the search results
+                    setTimeout(() => {
+                        searchChallans();
+                    }, 1000);
+                } else {
+                    showToast('Failed to delete challan: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error deleting challan', 'error');
+            });
+        }
+
+        function loadChallanData(challanData) {
+            // Clear existing form data first
+            document.getElementById('bulkTableBody').innerHTML = '';
+            
+            // Load header data
+            document.getElementById('commonDate').value = challanData.common.date;
+            document.getElementById('commonParty').value = challanData.common.party;
+            document.getElementById('commonChallan').value = challanData.common.challan;
+            document.getElementById('partyChallan').value = challanData.common.partyChallan || '';
+
+            // Load jambo items
+            rowCount = 0;
+            challanData.jambos.forEach((jambo, index) => {
+                addNewRow();
+                const row = document.querySelectorAll('#bulkTableBody tr')[index];
+                
+                row.cells[1].querySelector('input').value = jambo.jambo_no;
+                row.cells[2].querySelector('input').value = jambo.size_mm;
+                row.cells[3].querySelector('input').value = jambo.size_meter;
+                row.cells[4].querySelector('input').value = jambo.colour;
+                row.cells[5].querySelector('input').value = jambo.micron;
+                row.cells[6].querySelector('input').value = jambo.roll_no;
+                row.cells[7].querySelector('input').value = jambo.weight_kg;
+                row.cells[8].querySelector('input').value = jambo.rate;
+                row.cells[9].querySelector('input').value = jambo.calc_yard;
+            });
+
+            // Update totals
+            updateTotals();
+            
+            // Store current challan data for update
+            window.currentEditingChallan = challanData.common.challan;
+            
+            // Switch to Update Mode - Hide Save button, Show Update button
+            switchToUpdateMode();
+            
+            // Enable form for editing
+            enableFormForEditing();
+        }
+
+        function enableFormForEditing() {
+            // Enable all inputs for editing
+            const inputs = document.querySelectorAll('input, select, button');
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.style.backgroundColor = '';
+            });
+            
+            // Reset visual indicators
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                contentArea.style.opacity = '1';
+                contentArea.style.backgroundColor = '';
+            }
+            
+            const table = document.querySelector('#jamboTable');
+            if (table) {
+                table.style.border = '';
+                table.style.backgroundColor = '';
+            }
+            
+            // Remove success banner if exists
+            const existingBanner = document.querySelector('.alert-success');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+        }
+
+        // Function to switch between Save and Update modes
+        function switchToUpdateMode() {
+            // Hide Save button, Show Update button
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'inline-block';
+            document.getElementById('newBtn').style.display = 'none';
+            
+            showToast('📝 Edit mode activated! Aap ab challan update kar sakte hain.', 'info');
+        }
+
+        function switchToSaveMode() {
+            // Show Save button, Hide Update button
+            document.getElementById('saveBtn').style.display = 'inline-block';
+            document.getElementById('updateBtn').style.display = 'none';
+            document.getElementById('newBtn').style.display = 'none';
+            
+            // Clear editing challan reference
+            window.currentEditingChallan = null;
+            
+            showToast('✨ New entry mode! Aap naye jambos add kar sakte hain.', 'success');
+        }
+
+        // New function for update button
+        function updateCurrentChallan() {
+            if (!window.currentEditingChallan) {
+                showToast('Error: No challan selected for update', 'error');
+                return;
+            }
+            
+            updateChallan(window.currentEditingChallan);
+        }
+
+        function updateChallan(originalChallanNo) {
+            // Similar to saveBulkJambos but for updating
+            const commonData = {
+                date: document.getElementById('commonDate').value,
+                party: document.getElementById('commonParty').value,
+                challan: document.getElementById('commonChallan').value,
+                partyChallan: document.getElementById('partyChallan').value,
+                original_challan: originalChallanNo
+            };
+
+            if (!commonData.date || !commonData.party) {
+                showToast('Please fill required fields: Date and Party', 'error');
+                return;
+            }
+
+            const rows = document.querySelectorAll('#bulkTableBody tr');
+            const jambos = [];
+
+            rows.forEach((row, index) => {
+                const jamboInput = row.cells[1].querySelector('input');
+                const sizeMMInput = row.cells[2].querySelector('input');
+                const sizeMeterInput = row.cells[3].querySelector('input');
+                
+                const jambo_no = jamboInput.value.trim() || jamboInput.placeholder;
+                const size_mm = sizeMMInput.value.trim() || sizeMMInput.placeholder;
+                const size_meter = sizeMeterInput.value.trim() || sizeMeterInput.placeholder;
+                
+                const jambo = {
+                    jambo_no: jambo_no,
+                    size_mm: size_mm,
+                    size_meter: size_meter,
+                    colour: row.cells[4].querySelector('input').value.trim() || 'Clear',
+                    micron: row.cells[5].querySelector('input').value.trim() || '37',
+                    roll_no: row.cells[6].querySelector('input').value.trim() || '1',
+                    weight_kg: row.cells[7].querySelector('input').value.trim() || '0',
+                    rate: row.cells[8].querySelector('input').value.trim() || '0',
+                    calc_yard: row.cells[9].querySelector('input').value.trim() || '0'
+                };
+
+                if (jambo_no && size_mm && size_meter) {
+                    jambos.push(jambo);
+                }
+            });
+
+            if (jambos.length === 0) {
+                showToast('Please add at least one jambo with required fields', 'error');
+                return;
+            }
+
+            // Update challan
+            fetch('/api/challans/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    common: commonData,
+                    jambos: jambos
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`🎉 Challan ${originalChallanNo} successfully update ho gaya!`, 'success');
+                    
+                    // Show success state
+                    showSavedSuccessState(data);
+                } else {
+                    showToast('Error updating challan: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error updating challan', 'error');
+            });
+        }
+
+        function downloadChallanPDF() {
+            if (!previewData) {
+                showToast('No preview data available for PDF', 'error');
+                return;
+            }
+
+            // Show loading state
+            showToast('Generating PDF...', 'info');
+
+            // Send request to generate PDF
+            fetch('/api/jambos/bulk/pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    preview_data: previewData
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Get filename from header or generate one
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'Challan.pdf';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                        if (filenameMatch) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+                    
+                    // Download the PDF
+                    response.blob().then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        showToast('✅ PDF downloaded successfully!', 'success');
+                    });
+                } else {
+                    response.json().then(data => {
+                        showToast('PDF generation failed: ' + (data.message || 'Unknown error'), 'error');
+                    }).catch(() => {
+                        showToast('PDF generation failed', 'error');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error generating PDF', 'error');
+            });
+        }
+
+        // Roman Urdu: Yeh function har row ka Calc Yard update karta hai
+        function updateCalcYard(row) {
+            const sizeMeterInput = row.cells[3].querySelector('input');
+            const yardInput = row.cells[9].querySelector('input');
+            const sizeMeter = parseFloat(sizeMeterInput.value) || 0;
+            // Roman Urdu: Agar decimal .50 ya zyada ho to 1 plus ho, warna neeche wali value hi ho
+            const rawYard = sizeMeter * 1.08325;
+            const decimal = rawYard - Math.floor(rawYard);
+            let calcYard;
+            if (decimal >= 0.5) {
+                calcYard = Math.ceil(rawYard);
+            } else {
+                calcYard = Math.floor(rawYard);
+            }
+            yardInput.value = calcYard;
+        }
+
+        function setupRowEventListeners(row) {
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach((input, index) => {
+                // Calc Yard (column 9) par event na lagayen
+                if (index === 9) return;
+                // Sirf Size Meter (column 3) par calculation ka event lagao
+                if (index === 3) {
+                    input.addEventListener('input', function() {
+                        updateCalcYard(row); // Apni row ka Calc Yard update karo
+                        // Roman Urdu: Niche wali rows mai value copy karo aur Calc Yard bhi update karo
+                        const value = this.value;
+                        const currentRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                        const allRows = document.querySelectorAll('#bulkTableBody tr');
+                        for (let i = currentRowIndex + 1; i < allRows.length; i++) {
+                            const sameColumnInput = allRows[i].cells[index + 1].querySelector('input');
+                            if (sameColumnInput && !sameColumnInput.readOnly) {
+                                sameColumnInput.value = value;
+                                updateCalcYard(allRows[i]); // Niche wali row ka Calc Yard bhi update karo
+                            }
+                        }
+                        updateTotals();
+                    });
+                } else {
+                    // Baaki input fields par sirf value copy ka event lagao
+                    input.addEventListener('input', function() {
+                        const value = this.value;
+                        const currentRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                        const allRows = document.querySelectorAll('#bulkTableBody tr');
+                        for (let i = currentRowIndex + 1; i < allRows.length; i++) {
+                            const sameColumnInput = allRows[i].cells[index + 1].querySelector('input');
+                            if (sameColumnInput && !sameColumnInput.readOnly) {
+                                sameColumnInput.value = value;
+                            }
+                        }
+                        updateTotals();
+                    });
+                }
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>${message}</span>
+                    <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        // Preview Modal Functions
+        let previewData = null; // Store preview data for saving
+
+        function showPreviewModal(data) {
+            previewData = data; // Store for later saving
+            
+            const previewBody = document.getElementById('challanPreviewBody');
+            
+            // Format date
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                });
+            };
+            
+            previewBody.innerHTML = `
+                <!-- Challan Header -->
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 class="fw-bold mb-0" style="color: #000; font-size: 24px;">DELIVERY CHALLAN</h2>
+                        <p class="text-muted" style="font-size: 14px; margin-top: 5px;">Jambo Roll Manufacturing Company</p>
+                        <hr style="margin: 20px 0; border-color: #333;">
+                    </div>
+                </div>
+                
+                <!-- Challan Details -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <table class="table table-borderless" style="font-size: 12px;">
+                            <tr>
+                                <td class="fw-bold" style="padding: 8px; width: 40%;">Party Name:</td>
+                                <td style="padding: 8px;">${data.common.party}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold" style="padding: 8px;">Date:</td>
+                                <td style="padding: 8px;">${formatDate(data.common.date)}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless" style="font-size: 12px;">
+                            <tr>
+                                <td class="fw-bold" style="padding: 8px; width: 40%;">Challan No:</td>
+                                <td style="padding: 8px;">${data.common.challan}</td>
+                            </tr>
+                            ${data.common.partyChallan ? `
+                            <tr>
+                                <td class="fw-bold" style="padding: 8px;">Party Challan:</td>
+                                <td style="padding: 8px;">${data.common.partyChallan}</td>
+                            </tr>
+                            ` : ''}
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Items Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered" style="font-size: 12px;">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 5%;">Sr.</th>
+                                <th style="width: 45%;">Description</th>
+                                <th style="width: 25%;">Quantity</th>
+                                <th style="width: 25%;">Weight (Kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.grouped_items.map((item, idx) => `
+                            <tr>
+                                <td class="text-center">${typeof item.sr_no !== 'undefined' ? item.sr_no : (idx + 1)}</td>
+                                <td style="white-space: pre-wrap;">${item.description}</td>
+                                <td class="text-end">${item.count} Jambo</td>
+                                <td class="text-end">${item.total_weight.toFixed(2)}</td>
+                            </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-dark">
+                                <td colspan="2" class="text-end fw-bold">Grand Total:</td>
+                                <td class="text-end fw-bold">${data.total_items} Jambo</td>
+                                <td class="text-end fw-bold">${data.grand_total_weight.toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card border-info">
+                            <div class="card-body">
+                                <h6 class="card-title text-info">📊 Summary</h6>
+                                <p class="mb-1">Total Items: <strong>${data.total_items}</strong></p>
+                                <p class="mb-1">Total Weight: <strong>${data.grand_total_weight} Kg</strong></p>
+                                <p class="mb-0">Grouped Items: <strong>${data.grouped_items.length}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success">
+                            <div class="card-body">
+                                <h6 class="card-title text-success">✅ Ready to Save</h6>
+                                <p class="mb-0">All jambos validated and ready for database save</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('challanPreviewModal'));
+            modal.show();
+        }
+
+        function confirmAndSave() {
+            if (!previewData) {
+                showToast('No preview data available', 'error');
+                return;
+            }
+
+            // Disable button to prevent double-click
+            const saveBtn = document.getElementById('confirmSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+            // Save to backend using existing save API
+            fetch('/api/jambos/bulk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    common: previewData.common,
+                    jambos: previewData.jambos
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`🎉 Successfully saved ${data.saved_count} jambos! Challan: ${data.challan_no}`, 'success');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('challanPreviewModal'));
+                    modal.hide();
+                    
+                    // Show success state instead of redirecting
+                    showSavedSuccessState(data);
+                    
+                } else {
+                    showToast('Error saving jambos: ' + data.message, 'error');
+                    // Re-enable button
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save & Confirm';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error saving jambos', 'error');
+                // Re-enable button
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save & Confirm';
+            });
+        }
+
+        function showSavedSuccessState(saveData) {
+            // Hide Save and Update buttons, show New button
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'none';
+            document.getElementById('newBtn').style.display = 'inline-block';
+            
+            // Clear editing challan reference
+            window.currentEditingChallan = null;
+            
+            // Make form read-only to show saved state
+            makeFormReadOnly();
+            
+            // Show success banner at the top of content area
+            const contentArea = document.querySelector('.content-area');
+            const successBanner = document.createElement('div');
+            successBanner.className = 'alert alert-success alert-dismissible fade show mb-3';
+            successBanner.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">✅ Data Successfully Saved!</h5>
+                        <p class="mb-0">
+                            <strong>${saveData.saved_count} jambos</strong> saved for <strong>${saveData.party_name}</strong> 
+                            with Challan No: <strong>${saveData.challan_no}</strong>
+                        </p>
+                        <small class="text-muted">🎯 Aap ab "New Entry" button se naya challan bana sakte hain!</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            // Insert at the top of content area
+            contentArea.insertBefore(successBanner, contentArea.firstChild);
+        }
+
+        function makeFormReadOnly() {
+            // Keep these buttons enabled: New, Preview, Find, and Close buttons
+            const enabledButtons = ['newBtn', 'previewBtn', 'findBtn'];
+            
+            // Disable all input fields and buttons except specified ones
+            const inputs = document.querySelectorAll('input, select, button');
+            inputs.forEach(input => {
+                if (!enabledButtons.includes(input.id) && !input.classList.contains('btn-close') && !input.classList.contains('btn-secondary')) {
+                    input.disabled = true;
+                    input.style.backgroundColor = '#f8f9fa';
+                }
+            });
+            
+            // Add visual indication of saved state
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                contentArea.style.opacity = '0.9';
+                contentArea.style.backgroundColor = '#f8f9fa';
+            }
+            
+            // Highlight the table to show saved data
+            const table = document.querySelector('#jamboTable');
+            if (table) {
+                table.style.border = '2px solid #28a745';
+                table.style.backgroundColor = '#d4edda';
+            }
+        }
+
+        function showAddPartyModal() {
+            // Clear previous values
+            document.getElementById('newPartyName').value = '';
+            document.getElementById('newPartyPhone').value = '';
+            document.getElementById('newPartyEmail').value = '';
+            document.getElementById('newPartyAddress').value = '';
+            document.getElementById('newPartyCity').value = '';
+            document.getElementById('newPartyType').value = 'Supplier';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('addPartyModal'));
+            modal.show();
+        }
+
+        function addNewParty() {
+            const name = document.getElementById('newPartyName').value.trim();
+            const phone = document.getElementById('newPartyPhone').value.trim();
+            const email = document.getElementById('newPartyEmail').value.trim();
+            const address = document.getElementById('newPartyAddress').value.trim();
+            const city = document.getElementById('newPartyCity').value.trim();
+            const type = document.getElementById('newPartyType').value;
+            
+            if (!name) {
+                showToast('Please enter party name!', 'error');
+                return;
+            }
+            
+            // Add to database via API
+            fetch('/api/parties/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    address: address,
+                    city: city,
+                    type: type
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add to parties list and refresh dropdown
+                    if (!window.allParties) {
+                        window.allParties = [];
+                    }
+                    window.allParties.push(name);
+                    window.allParties.sort();
+                    
+                    // Select the new party
+                    document.getElementById('commonParty').value = name;
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addPartyModal'));
+                    modal.hide();
+                    
+                    showToast(`Party "${name}" added successfully!`, 'success');
+                    
+                    // Refresh parties list
+                    loadParties();
+                } else {
+                    showToast('Error adding party: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error adding party. Please try again.', 'error');
+            });
+        }
+
+        // Roman Urdu: Har row ke Size Meter input par event lagao taki Calc Yard hamesha update ho
+        function addSizeMeterListeners() {
+            document.querySelectorAll('#bulkTableBody tr').forEach(row => {
+                const sizeMeterInput = row.cells[3].querySelector('input');
+                if (sizeMeterInput) {
+                    sizeMeterInput.addEventListener('input', function() {
+                        updateCalcYard(row);
+                    });
+                }
+            });
+        }
+
+        // Page load par bhi event lagao
+        document.addEventListener('DOMContentLoaded', function() {
+            addSizeMeterListeners();
+        });
+
+        // Nayi row add karte waqt bhi event lagao
+        function addNewRow() {
+            const tbody = document.getElementById('bulkTableBody');
+            const newRow = document.createElement('tr');
+            rowCount++;
+            const jamboNo = currentJamboNumber + rowCount - 1;
+            const defaultSizeMeter = 4000;
+            const calcYard = (defaultSizeMeter * 1.08325).toFixed(2);
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="number" class="form-control form-control-sm text-center text-danger fw-bold" value="${jamboNo}" readonly style="background-color: #f8f9fa;"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="1280"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="${defaultSizeMeter}"></td>
+                <td><input type="text" class="form-control form-control-sm text-center" value="TAN"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="37"></td>
+                <td><input type="number" class="form-control form-control-sm text-center" value="10"></td>
+                <td><input type="number" step="0.01" class="form-control form-control-sm text-center weight-input" value="185"></td>
+                <td><input type="number" step="0.01" class="form-control form-control-sm text-center rate-input" value="665"></td>
+                <td><input type="number" class="form-control form-control-sm text-center yard-input" value="${calcYard}" readonly></td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            updateRowCounter();
+            setupRowEventListeners(newRow);
+            updateTotals();
+            updateCalcYard(newRow);
+            // Roman Urdu: Nayi row ke Size Meter input par event lagao
+            const sizeMeterInput = newRow.cells[3].querySelector('input');
+            if (sizeMeterInput) {
+                sizeMeterInput.addEventListener('input', function() {
+                    updateCalcYard(newRow);
+                    // Roman Urdu: Niche wali rows mai value copy karo aur Calc Yard bhi update karo
+                    const value = this.value;
+                    const currentRowIndex = Array.from(newRow.parentNode.children).indexOf(newRow);
+                    const allRows = document.querySelectorAll('#bulkTableBody tr');
+                    for (let i = currentRowIndex + 1; i < allRows.length; i++) {
+                        const sameColumnInput = allRows[i].cells[3].querySelector('input');
+                        if (sameColumnInput && !sameColumnInput.readOnly) {
+                            sameColumnInput.value = value;
+                            updateCalcYard(allRows[i]);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Roman Urdu: Delete Row ka function (fix for delete button)
+        function deleteRow(button) {
+            removeRow(button); // Pehle se maujood removeRow function ko call karo
+        }
+    </script>
+</body>
+</html> 

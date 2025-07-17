@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Import - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .format-table {
+            font-size: 12px;
+            background: #f8f9fa;
+        }
+        .format-table th {
+            background: #28a745;
+            color: white;
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 11px;
+        }
+        .format-table td {
+            text-align: center;
+            padding: 6px 4px;
+            border: 1px solid #dee2e6;
+        }
+        .example-row {
+            background: #fff3cd;
+        }
+        .import-textarea {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-file-excel text-success me-2"></i>📊 Excel Import - Purana Stock</h2>
+                    <a href="/jambos" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Jambos
+                    </a>
+                </div>
+
+                <!-- Excel Format Instructions -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>📋 Excel Column Format (Exact Order)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <strong>⚠️ Important:</strong> Excel mein columns ka order exactly yeh hona chahiye. Copy-paste karte waqt headers mat include karna!
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered format-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">Col 1</th>
+                                        <th style="width: 60px;">Col 2</th>
+                                        <th style="width: 60px;">Col 3</th>
+                                        <th style="width: 60px;">Col 4</th>
+                                        <th style="width: 60px;">Col 5</th>
+                                        <th style="width: 60px;">Col 6</th>
+                                        <th style="width: 60px;">Col 7</th>
+                                        <th style="width: 60px;">Col 8</th>
+                                        <th style="width: 80px;">Col 9</th>
+                                        <th style="width: 60px;">Col 10</th>
+                                        <th style="width: 60px;">Col 11</th>
+                                        <th style="width: 60px;">Col 12</th>
+                                        <th style="width: 60px;">Col 13</th>
+                                        <th style="width: 60px;">Col 14</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Jambo No</th>
+                                        <th>Size MM</th>
+                                        <th>Size Meter</th>
+                                        <th>Colour</th>
+                                        <th>Micron</th>
+                                        <th>Roll No</th>
+                                        <th>Net Weight</th>
+                                        <th>Party Name</th>
+                                        <th>Calc Yard</th>
+                                        <th>Actual Yard</th>
+                                        <th>Rate/KG</th>
+                                        <th>Amount</th>
+                                        <th>Extra Yard</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="example-row">
+                                        <td>2025-01-15</td>
+                                        <td>2001</td>
+                                        <td>1280</td>
+                                        <td>4.5</td>
+                                        <td>CLEAR</td>
+                                        <td>100</td>
+                                        <td>1</td>
+                                        <td>85.5</td>
+                                        <td>Universal Coating</td>
+                                        <td>15000</td>
+                                        <td>15000</td>
+                                        <td>185.50</td>
+                                        <td>15860.25</td>
+                                        <td>0</td>
+                                    </tr>
+                                    <tr class="example-row">
+                                        <td>2025-01-15</td>
+                                        <td>2002</td>
+                                        <td>1000</td>
+                                        <td>3.0</td>
+                                        <td>TAN</td>
+                                        <td>75</td>
+                                        <td>2</td>
+                                        <td>62.0</td>
+                                        <td>Ali Saddrudin</td>
+                                        <td>12000</td>
+                                        <td>12000</td>
+                                        <td>190.00</td>
+                                        <td>11780.00</td>
+                                        <td>100</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-check-circle text-success me-2"></i>✅ Important Notes:</h6>
+                                <ul class="small">
+                                    <li><strong>Date:</strong> YYYY-MM-DD format (2025-01-15)</li>
+                                    <li><strong>Jambo No:</strong> Unique number (2001, 2002...)</li>
+                                    <li><strong>Size MM:</strong> Width in mm (1280, 1000...)</li>
+                                    <li><strong>Size Meter:</strong> Length in meters (4.5, 3.0...)</li>
+                                    <li><strong>Colour:</strong> Text (CLEAR, TAN, YELLOW...)</li>
+                                    <li><strong>Micron:</strong> Thickness (100, 75, 50...)</li>
+                                    <li><strong>Roll No:</strong> Roll number (1, 2, 3...)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>⚠️ Challan Protection:</h6>
+                                <ul class="small">
+                                    <li><strong>Challan No:</strong> Excel mein NAHI dalna hai!</li>
+                                    <li>System automatically empty rakhega</li>
+                                    <li>Challan sequence safe rahega</li>
+                                    <li>Baad mein manually assign kar sakte hain</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Form -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-upload me-2"></i>📤 Import Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="importForm">
+                            <div class="mb-3">
+                                <label for="excelData" class="form-label">
+                                    <strong>Excel se data copy kar ke yahan paste karo:</strong>
+                                </label>
+                                <textarea id="excelData" class="form-control import-textarea" rows="10" 
+                                          placeholder="Excel se data copy kar ke yahan paste karo...&#10;&#10;Example:&#10;2025-01-15	2001	1280	4.5	CLEAR	100	1	85.5	Universal Coating	15000	15000	185.50	15860.25	0&#10;2025-01-15	2002	1000	3.0	TAN	75	2	62.0	Ali Saddrudin	12000	12000	190.00	11780.00	100"></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>Excel mein rows select karo, Ctrl+C karo, aur yahan Ctrl+V karo
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-upload me-2"></i>Import Data
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearData()">
+                                    <i class="fas fa-eraser me-2"></i>Clear
+                                </button>
+                                <button type="button" class="btn btn-outline-info" onclick="showSample()">
+                                    <i class="fas fa-eye me-2"></i>Show Sample
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div id="resultsArea" class="card mt-4" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Import Results</h5>
+                    </div>
+                    <div class="card-body" id="resultsContent">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('importForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const excelData = document.getElementById('excelData').value.trim();
+            
+            if (!excelData) {
+                alert('❌ Please paste Excel data first!');
+                return;
+            }
+            
+            // Show loading
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Importing...';
+            submitBtn.disabled = true;
+            
+            fetch('/api/jambos/excel-import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    excel_data: excelData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    showResults(data);
+                    if (data.imported_count > 0) {
+                        document.getElementById('excelData').value = '';
+                    }
+                } else {
+                    alert(`❌ Import Error: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                console.error('Error:', error);
+                alert('❌ Network error. Please try again.');
+            });
+        });
+        
+        function showResults(data) {
+            const resultsArea = document.getElementById('resultsArea');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-success text-white rounded">
+                            <h4>${data.imported_count}</h4>
+                            <small>Successfully Imported</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-warning text-dark rounded">
+                            <h4>${data.skipped_count}</h4>
+                            <small>Skipped/Errors</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-info text-white rounded">
+                            <h4>${data.total_lines}</h4>
+                            <small>Total Lines</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3 bg-primary text-white rounded">
+                            <h4>✅</h4>
+                            <small>Import Complete</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (data.error_lines && data.error_lines.length > 0) {
+                html += `
+                    <div class="mt-4">
+                        <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Errors/Skipped Lines:</h6>
+                        <div class="alert alert-warning">
+                            <small>
+                                ${data.error_lines.map(error => `• ${error}`).join('<br>')}
+                            </small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.imported_count > 0) {
+                html += `
+                    <div class="mt-4 text-center">
+                        <a href="/jambos" class="btn btn-primary">
+                            <i class="fas fa-eye me-2"></i>View Imported Jambos
+                        </a>
+                    </div>
+                `;
+            }
+            
+            resultsContent.innerHTML = html;
+            resultsArea.style.display = 'block';
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearData() {
+            document.getElementById('excelData').value = '';
+            document.getElementById('resultsArea').style.display = 'none';
+        }
+        
+        function showSample() {
+            const sampleData = `2025-01-15	2001	1280	4.5	CLEAR	100	1	85.5	Universal Coating	15000	15000	185.50	15860.25	0
+2025-01-15	2002	1000	3.0	TAN	75	2	62.0	Ali Saddrudin	12000	12000	190.00	11780.00	100
+2025-01-16	2003	1600	5.0	YELLOW	120	1	95.2	Capri Industries	18000	18000	175.00	16660.00	50`;
+            
+            document.getElementById('excelData').value = sampleData;
+        }
+    </script>
+</body>
+</html> 

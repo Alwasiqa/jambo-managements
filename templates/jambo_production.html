@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jambo Production - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 20px;
+        }
+
+        /* Rest of your existing styles */
+    .jambo-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .jambo-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+    }
+    .jambo-card.selected {
+        border-color: #007bff;
+        background-color: #f8f9ff;
+    }
+    .order-item {
+        border-left: 4px solid #28a745;
+        background: #f8fff9;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    .order-item.in-progress {
+        border-color: #ffc107;
+        background: #fffdf5;
+    }
+    .order-item.completed {
+        border-color: #28a745;
+        background: #f8fff9;
+    }
+    .balance-info {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+    .production-controls {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    .jambo-specs {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+</style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls -->
+            <a class="nav-link" href="/jambos">
+                <i class="fas fa-film"></i>
+                Jambo Rolls
+            </a>
+            
+            <!-- Customer Orders -->
+            <a class="nav-link" href="/orders">
+                <i class="fas fa-shopping-cart"></i>
+                Customer Orders
+            </a>
+            
+            <!-- Production - Active -->
+            <a class="nav-link active" href="/production">
+                <i class="fas fa-industry"></i>
+                Production
+            </a>
+            
+            <!-- Parties -->
+            <a class="nav-link" href="/parties">
+                <i class="fas fa-users"></i>
+                Parties
+            </a>
+            
+            <!-- Reports -->
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            
+            <!-- Settings -->
+            <a class="nav-link" href="/settings">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-outline-primary mobile-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="mb-0 d-inline-block ms-2">🏭 Jambo Production</h5>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Your existing content -->
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-3">
+        <div class="col">
+            <h4 class="text-primary">
+                <i class="fas fa-film me-2"></i>Jambo Production Management
+                <small class="text-muted">Direct production from jambo rolls</small>
+            </h4>
+        </div>
+    </div>
+
+    <!-- Production Calculator -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-calculator me-2"></i>Smart Production Calculator
+            <span class="badge bg-warning text-dark ms-2">Ready</span>
+        </div>
+        <div class="card-body">
+                        <!-- Selection Area -->
+                        <div class="row mb-4">
+                <!-- Step 1: Select Jambo -->
+                            <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-1 me-2"></i>Select Jambo Roll
+                                <span id="step1Status" class="badge bg-warning float-end">Select</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Search Jambo:</label>
+                                            <input type="text" class="form-control form-control-lg" id="jamboSearch" 
+                                                   placeholder="Search by jambo no, size, color, micron...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Available Jambos:</label>
+                                            <select class="form-select" id="jambosList" size="10" style="font-size: 12px;">
+                                    <option value="">Loading jambos...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Matching Items -->
+                            <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-2 me-2"></i>Select Matching Item
+                                <span id="step2Status" class="badge bg-secondary float-end">Waiting</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Search Items:</label>
+                                            <input type="text" class="form-control form-control-lg" id="itemSearch" 
+                                                   placeholder="Search by order no, party name, size...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Matching Items:</label>
+                                            <select class="form-select" id="itemsList" size="10" style="font-size: 12px;">
+                                    <option value="">Select jambo first</option>
+                                </select>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                        <!-- Production Details Area -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-3 me-2"></i>Production Details
+                                <span id="step3Status" class="badge bg-secondary float-end">Waiting</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="productionDetails">
+                                <div class="alert alert-info">
+                                    Select jambo and item to see production details
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production Calculator -->
+                        <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-cogs me-2"></i>Production Calculator
+                            <span class="badge bg-warning text-dark ms-2" id="calculatorStatus">Ready</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Input Section -->
+                                <div class="col-md-4">
+                                    <h6 class="mb-3">📝 Production Input</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Shafts Required: <small class="text-success">Auto + Manual</small></label>
+                                                    <div class="input-group input-group-lg">
+                                            <input type="text" class="form-control" id="shaftsInput" 
+                                                   value="0" onkeyup="this.value = this.value.replace(/[^\d]/g,'')">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="useAutoValue('shafts')">
+                                                <i class="fas fa-sync"></i> Auto
+                                            </button>
+                                        </div>
+                                        <small class="form-text text-muted">Auto-calculated or enter manually</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Pieces per Shaft: <small class="text-success">Auto + Manual</small></label>
+                                                    <div class="input-group input-group-lg">
+                                            <input type="text" class="form-control" id="piecesInput" 
+                                                   value="0" onkeyup="this.value = this.value.replace(/[^\d]/g,'')">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="useAutoValue('pieces')">
+                                                <i class="fas fa-sync"></i> Auto
+                                            </button>
+                                        </div>
+                                        <small class="form-text text-muted">Auto-calculated or enter manually</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                                    <button class="btn btn-success btn-lg w-100" id="autoCalculateBtn" onclick="calculateProduction()">
+                                            <i class="fas fa-magic me-2"></i>Auto Calculate
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Results Section -->
+                                <div class="col-md-8">
+                                    <h6 class="mb-3">📊 Calculation Results</h6>
+                                    <div class="calculation-results p-3 bg-light rounded" id="calculationResults">
+                                        Select jambo and item to see calculations
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Footer -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div id="actionStatus" class="text-muted">
+                                                    ⏳ Step 1: Select a jambo roll
+                                                </div>
+                                                <div>
+                                                                <button class="btn btn-danger btn-lg me-2" id="startProductionBtn" onclick="executeProduction()" disabled>
+                                                        <i class="fas fa-play me-2"></i>🚀 START PRODUCTION
+                                                    </button>
+                                                                <button class="btn btn-secondary btn-lg me-2" onclick="resetProduction()">
+                                                        <i class="fas fa-undo me-2"></i>Reset
+                                                    </button>
+                                                                <button class="btn btn-dark btn-lg" onclick="window.location.href='/production'">
+                                                        <i class="fas fa-times me-2"></i>Close
+                                                    </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+        // Add mobile sidebar toggle function
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+        
+// Global variables
+let selectedJambo = null;
+let selectedItem = null;
+let productionResults = { feasible: false };
+let autoValues = {
+    shafts: 0,
+    pieces: 0
+};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadJambos();
+    setupEventListeners();
+});
+
+// Load available jambos
+function loadJambos() {
+            console.log('Loading jambos...');
+    fetch('/api/jambos/active')
+                .then(response => {
+                    console.log('Response:', response);
+                    return response.json();
+                })
+        .then(data => {
+                    console.log('Data:', data);
+            if (data.success) {
+                displayJambos(data.jambos);
+            } else {
+                        showError('Failed to load jambos: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+                    showError('Failed to load jambos: ' + error.message);
+        });
+}
+
+// Display jambos in list
+function displayJambos(jambos) {
+    const jambosList = document.getElementById('jambosList');
+    if (!jambos || jambos.length === 0) {
+        jambosList.innerHTML = '<option value="">No active jambos found</option>';
+        return;
+    }
+
+    jambosList.innerHTML = jambos.map(jambo => `
+        <option value='${JSON.stringify(jambo)}'>
+                    #${jambo.jambo_no} - ${jambo.size_mm}mm - ${jambo.colour} - ${jambo.micron}MIC (${jambo.balance_yard}y) - ${jambo.party_name}
+        </option>
+    `).join('');
+}
+
+// Load matching items for selected jambo
+function loadMatchingItems(jambo) {
+            console.log('Loading matching items for jambo:', jambo);
+    fetch(`/api/items/matching/${jambo.jambo_no}`)
+                .then(response => {
+                    console.log('Response:', response);
+                    return response.json();
+                })
+        .then(data => {
+                    console.log('Matching items data:', data);
+            if (data.success) {
+                displayMatchingItems(data.items);
+            } else {
+                        showError('Failed to load matching items: ' + data.message);
+            }
+        })
+        .catch(error => {
+                    console.error('Error loading matching items:', error);
+                    showError('Failed to load matching items: ' + error.message);
+        });
+}
+
+// Display matching items
+function displayMatchingItems(items) {
+    const itemsList = document.getElementById('itemsList');
+    if (!items || items.length === 0) {
+        itemsList.innerHTML = '<option value="">No matching items found</option>';
+        return;
+    }
+
+    itemsList.innerHTML = items.map(item => {
+        // Use balance format like order production - shorter display
+        return `
+            <option value='${JSON.stringify(item)}'>
+                #${item.order_no} - ${item.party_name}
+                ${item.size} - ${item.colour} - ${item.micron}MIC
+                (${item.qty} - ${item.produced_pieces || 0} = Bal ${item.remaining_pieces})
+            </option>
+        `;
+    }).join('');
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Jambo search
+    document.getElementById('jamboSearch').addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        Array.from(document.getElementById('jambosList').options).forEach(option => {
+            const text = option.text.toLowerCase();
+            option.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+
+    // Item search
+    document.getElementById('itemSearch').addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        Array.from(document.getElementById('itemsList').options).forEach(option => {
+            const text = option.text.toLowerCase();
+            option.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+
+    // Jambo selection
+    document.getElementById('jambosList').addEventListener('change', function() {
+        try {
+            selectedJambo = JSON.parse(this.value);
+            updateStep1Status('✅ Selected');
+            loadMatchingItems(selectedJambo);
+            updateProductionDetails();
+        } catch (e) {
+            selectedJambo = null;
+            updateStep1Status('⚠️ Invalid');
+        }
+    });
+
+    // Item selection
+    document.getElementById('itemsList').addEventListener('change', function() {
+        try {
+            selectedItem = JSON.parse(this.value);
+            updateStep2Status('✅ Selected');
+            updateProductionDetails();
+            calculateProduction();
+        } catch (e) {
+            selectedItem = null;
+            updateStep2Status('⚠️ Invalid');
+        }
+    });
+}
+
+// Update production details
+function updateProductionDetails() {
+    const details = document.getElementById('productionDetails');
+    if (!selectedJambo || !selectedItem) {
+        details.innerHTML = '<div class="alert alert-info">Select jambo and item to see production details</div>';
+        return;
+    }
+
+    details.innerHTML = `
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">Production Details</h6>
+                            </div>
+                            <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                                        <h6 class="text-primary">Jambo Details:</h6>
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th width="120">Jambo:</th>
+                                                <td>#${selectedJambo.jambo_no}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Size:</th>
+                                                <td>${selectedJambo.size_mm}mm x ${selectedJambo.size_meter}m</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Color:</th>
+                                                <td>${selectedJambo.colour}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Micron:</th>
+                                                <td>${selectedJambo.micron} MIC</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Available:</th>
+                                                <td>${selectedJambo.balance_yard} yards</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Party:</th>
+                                                <td>${selectedJambo.party_name}</td>
+                                            </tr>
+                                        </table>
+            </div>
+            <div class="col-md-6">
+                                        <h6 class="text-success">Item Details:</h6>
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th width="120">Order:</th>
+                                                <td>#${selectedItem.order_no}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Size:</th>
+                                                <td>${selectedItem.size}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Color:</th>
+                                                <td>${selectedItem.colour}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Balance:</th>
+                                                <td>${selectedItem.total_pieces || selectedItem.remaining_pieces} - ${selectedItem.produced_pieces || 0} = ${selectedItem.remaining_pieces} Pcs</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Party:</th>
+                                                <td>${selectedItem.party_name || 'N/A'}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </div>
+        </div>
+    `;
+}
+
+// Update status badges
+function updateStep1Status(text) {
+    document.getElementById('step1Status').innerHTML = text;
+}
+
+function updateStep2Status(text) {
+    document.getElementById('step2Status').innerHTML = text;
+}
+
+function updateStep3Status(text) {
+    document.getElementById('step3Status').innerHTML = text;
+}
+
+// Show error message
+function showError(message) {
+    // You can implement a better error display system
+    alert(message);
+}
+
+        // Calculate production requirements
+        function calculateProduction() {
+            if (!selectedJambo || !selectedItem) {
+                showError('Please select both jambo and item first');
+                return;
+            }
+
+            // Create order object from selected item
+            const order = {
+                order_no: selectedItem.order_no,
+                customer_name: selectedItem.party_name,
+                status: 'In Progress'
+            };
+
+            const data = {
+                order: order,
+                item: selectedItem,
+                jambo: selectedJambo,
+                manual_shafts: parseInt(document.getElementById('shaftsInput').value) || 0,
+                manual_pieces_per_shaft: parseInt(document.getElementById('piecesInput').value) || 0
+            };
+
+            console.log('Calculating production with data:', data);
+
+            fetch('/api/production/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Calculation results:', data);
+                if (data.success) {
+                    productionResults = data.results;
+                    displayCalculationResults(data.results);
+                    updateStep3Status(data.results.feasible ? '✅ Ready' : '⚠️ Not Feasible');
+                    document.getElementById('startProductionBtn').disabled = !data.results.feasible;
+                } else {
+                    showError('Calculation failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Calculation failed: ' + error.message);
+            });
+        }
+
+        // Display calculation results
+        function displayCalculationResults(results) {
+            const resultsDiv = document.getElementById('calculationResults');
+            
+            if (!results.feasible) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>⚠️ Production Not Feasible</strong><br>
+                        Reason: Insufficient material or invalid calculations
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success">Production Values</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Shafts:</th>
+                                <td>${results.shafts} (${results.shafts_source})</td>
+                            </tr>
+                            <tr>
+                                <th>Pieces/Shaft:</th>
+                                <td>${results.pieces_per_shaft}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Pieces:</th>
+                                <td>${results.total_pieces}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Yards:</th>
+                                <td>${results.total_yards}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Material Usage</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Efficiency:</th>
+                                <td>${results.efficiency.toFixed(1)}%</td>
+                            </tr>
+                            <tr>
+                                <th>Balance After:</th>
+                                <td>${results.remaining_after} yards</td>
+                            </tr>
+                            <tr>
+                                <th>Order Fulfillment:</th>
+                                <td>${results.order_fulfillment.toFixed(1)}%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // Update auto values
+            autoValues.shafts = results.auto_calculated_shafts;
+            autoValues.pieces = results.pieces_per_shaft;
+        }
+
+        // Execute production
+        function executeProduction() {
+            if (!selectedJambo || !selectedItem || !productionResults.feasible) {
+                showError('Cannot start production. Please ensure all calculations are complete and feasible.');
+                return;
+            }
+
+            // Create order object from selected item
+            const order = {
+                order_no: selectedItem.order_no,
+                customer_name: selectedItem.party_name,
+                status: 'In Progress'
+            };
+
+            const data = {
+                order: order,
+                item: selectedItem,
+                jambo: selectedJambo,
+                results: productionResults
+            };
+
+            console.log('Executing production with data:', data);
+
+            fetch('/api/production/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Production execution results:', data);
+                if (data.success) {
+                    alert('Production started successfully!');
+                    window.location.href = '/production';  // Redirect to production dashboard
+                } else {
+                    showError('Failed to start production: ' + (data.message || data.error));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Failed to start production: ' + error.message);
+            });
+        }
+
+        // Reset production form
+        function resetProduction() {
+            selectedJambo = null;
+            selectedItem = null;
+            productionResults = { feasible: false };
+            autoValues = { shafts: 0, pieces: 0 };
+
+            // Reset form elements
+            document.getElementById('jambosList').value = '';
+            document.getElementById('itemsList').innerHTML = '<option value="">Select jambo first</option>';
+            document.getElementById('shaftsInput').value = '0';
+            document.getElementById('piecesInput').value = '0';
+            document.getElementById('productionDetails').innerHTML = '<div class="alert alert-info">Select jambo and item to see production details</div>';
+            document.getElementById('calculationResults').innerHTML = 'Select jambo and item to see calculations';
+            
+            // Reset status badges
+            updateStep1Status('Select');
+            updateStep2Status('Waiting');
+            updateStep3Status('Waiting');
+            
+            // Disable production button
+            document.getElementById('startProductionBtn').disabled = true;
+        }
+
+        // Use auto-calculated values
+        function useAutoValue(field) {
+            if (field === 'shafts') {
+                document.getElementById('shaftsInput').value = autoValues.shafts;
+            } else if (field === 'pieces') {
+                document.getElementById('piecesInput').value = autoValues.pieces;
+            }
+            calculateProduction();
+        }
+</script>
+</body>
+</html> 

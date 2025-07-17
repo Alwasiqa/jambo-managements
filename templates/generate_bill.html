@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Add jQuery and jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<style>
+.customer-search-container {
+    position: relative;
+}
+.customer-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+.customer-dropdown .dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+.customer-dropdown .dropdown-item:hover {
+    background: #f8f9fa;
+}
+.customer-dropdown .dropdown-item.active {
+    background: #007bff;
+    color: white;
+}
+
+.stock-search-container {
+    position: relative;
+}
+.stock-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+.stock-dropdown .dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+.stock-dropdown .dropdown-item:hover {
+    background: #f8f9fa;
+}
+.stock-dropdown .dropdown-item.active {
+    background: #007bff;
+    color: white;
+}
+.stock-dropdown .item-details {
+    font-size: 0.85em;
+    color: #666;
+}
+.stock-dropdown .dropdown-item.active .item-details {
+    color: #fff;
+}
+</style>
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4">
+        <i class="fas fa-file-invoice"></i>
+        Generate Bill
+    </h2>
+
+    <form method="POST" action="{{ url_for('reports.generate_bill') }}" id="billForm">
+        <div class="card">
+            <div class="card-body">
+                <!-- Bill Header -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>M/S</label>
+                            <div class="customer-search-container">
+                                <input type="text" name="customer_name" id="customer_search" 
+                                       class="form-control" placeholder="Type to search customers..." required>
+                                <div id="customerDropdown" class="customer-dropdown">
+                                    <!-- Customers will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" name="date" class="form-control" value="{{ today }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Bill No</label>
+                            <input type="text" name="bill_no" class="form-control" value="{{ next_bill_no }}" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>QTY</th>
+                                <th>Size</th>
+                                <th>Colour</th>
+                                <th>Brand</th>
+                                <th>Mic</th>
+                                <th>Printed</th>
+                                <th>Varity</th>
+                                <th>Per Ctn Qty</th>
+                                <th>@</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(10) %}
+                            <tr>
+                                <td>{{ i + 1 }}</td>
+                                <td><input type="text" name="qty_{{ i }}" class="form-control form-control-sm"></td>
+                                <td>
+                                    <div class="stock-search-container">
+                                        <input type="text" name="size_{{ i }}" class="form-control form-control-sm stock-search"
+                                               data-row="{{ i }}" placeholder="Search item...">
+                                        <div id="stockDropdown_{{ i }}" class="stock-dropdown">
+                                            <!-- Stock items will be loaded here -->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><input type="text" name="colour_{{ i }}" class="form-control form-control-sm" id="colour_{{ i }}" readonly></td>
+                                <td><input type="text" name="brand_{{ i }}" class="form-control form-control-sm" id="brand_{{ i }}" readonly></td>
+                                <td><input type="text" name="mic_{{ i }}" class="form-control form-control-sm" id="mic_{{ i }}" readonly></td>
+                                <td><input type="text" name="printed_{{ i }}" class="form-control form-control-sm"></td>
+                                <td><input type="text" name="varity_{{ i }}" class="form-control form-control-sm"></td>
+                                <td><input type="text" name="per_ctn_qty_{{ i }}" class="form-control form-control-sm"></td>
+                                <td><input type="text" name="rate_{{ i }}" class="form-control form-control-sm"></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-print me-2"></i>
+                        Generate Bill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Customer search functionality
+    const customerInput = $('#customer_search');
+    const customerDropdown = $('#customerDropdown');
+    let selectedCustomerIndex = -1;
+    
+    // Load customers on input
+    customerInput.on('input', function() {
+        const query = $(this).val().trim();
+        if (query.length >= 1) {
+            $.getJSON("{{ url_for('reports.search_customers') }}", { term: query })
+                .done(function(customers) {
+                    updateCustomerDropdown(customers);
+                });
+        } else {
+            customerDropdown.hide();
+        }
+    });
+    
+    // Show dropdown on focus
+    customerInput.on('focus', function() {
+        const query = $(this).val().trim();
+        if (query.length >= 1) {
+            $.getJSON("{{ url_for('reports.search_customers') }}", { term: query })
+                .done(function(customers) {
+                    updateCustomerDropdown(customers);
+                });
+        }
+    });
+    
+    // Hide dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.customer-search-container').length) {
+            customerDropdown.hide();
+        }
+    });
+    
+    // Update customer dropdown
+    function updateCustomerDropdown(customers) {
+        customerDropdown.empty();
+        
+        if (customers.length === 0) {
+            customerDropdown.append(`
+                <div class="dropdown-item text-muted">No customers found</div>
+            `);
+        } else {
+            customers.forEach(customer => {
+                customerDropdown.append(`
+                    <div class="dropdown-item" data-name="${customer}">${customer}</div>
+                `);
+            });
+        }
+        
+        customerDropdown.show();
+    }
+    
+    // Handle customer selection
+    customerDropdown.on('click', '.dropdown-item', function() {
+        const name = $(this).data('name');
+        if (name) {
+            customerInput.val(name);
+            customerDropdown.hide();
+            selectedCustomerIndex = -1;
+        }
+    });
+    
+    // Handle customer keyboard navigation
+    customerInput.on('keydown', function(e) {
+        const items = customerDropdown.find('.dropdown-item:not(.text-muted)');
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedCustomerIndex = Math.min(selectedCustomerIndex + 1, items.length - 1);
+                updateCustomerSelection(items);
+                break;
+                
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedCustomerIndex = Math.max(selectedCustomerIndex - 1, 0);
+                updateCustomerSelection(items);
+                break;
+                
+            case 'Enter':
+                e.preventDefault();
+                if (selectedCustomerIndex >= 0) {
+                    const selected = items.eq(selectedCustomerIndex);
+                    const name = selected.data('name');
+                    if (name) {
+                        customerInput.val(name);
+                        customerDropdown.hide();
+                        selectedCustomerIndex = -1;
+                    }
+                }
+                break;
+                
+            case 'Escape':
+                customerDropdown.hide();
+                selectedCustomerIndex = -1;
+                break;
+        }
+    });
+    
+    function updateCustomerSelection(items) {
+        items.removeClass('active');
+        if (selectedCustomerIndex >= 0) {
+            items.eq(selectedCustomerIndex).addClass('active')
+                .get(0).scrollIntoView({ block: 'nearest' });
+        }
+    }
+    
+    // Stock item search functionality
+    $('.stock-search').each(function(index) {
+        const stockInput = $(this);
+        const stockDropdown = $(`#stockDropdown_${index}`);
+        let selectedStockIndex = -1;
+        
+        // Load stock items on input
+        stockInput.on('input', function() {
+            const query = $(this).val().trim();
+            if (query.length >= 1) {
+                $.getJSON("{{ url_for('reports.search_stock') }}", { term: query })
+                    .done(function(items) {
+                        updateStockDropdown(items, index);
+                    });
+            } else {
+                stockDropdown.hide();
+            }
+        });
+        
+        // Show dropdown on focus
+        stockInput.on('focus', function() {
+            const query = $(this).val().trim();
+            if (query.length >= 1) {
+                $.getJSON("{{ url_for('reports.search_stock') }}", { term: query })
+                    .done(function(items) {
+                        updateStockDropdown(items, index);
+                    });
+            }
+        });
+        
+        // Hide dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.stock-search-container').length) {
+                stockDropdown.hide();
+            }
+        });
+        
+        // Update stock dropdown
+        function updateStockDropdown(items, rowIndex) {
+            stockDropdown.empty();
+            
+            if (items.length === 0) {
+                stockDropdown.append(`
+                    <div class="dropdown-item text-muted">No items found</div>
+                `);
+            } else {
+                items.forEach(item => {
+                    const details = [];
+                    details.push(`Stock: ${item.production} pcs`);
+                    if (item.packing) {
+                        details.push(`Packing: ${item.packing} Pcs/Ctn`);
+                    }
+                    
+                    stockDropdown.append(`
+                        <div class="dropdown-item" data-item='${JSON.stringify(item)}'>
+                            <div class="item-name">${item.description}</div>
+                            <div class="item-details">${details.join(' • ')}</div>
+                        </div>
+                    `);
+                });
+            }
+            
+            stockDropdown.show();
+        }
+        
+        // Handle stock selection
+        stockDropdown.on('click', '.dropdown-item', function() {
+            const itemData = $(this).data('item');
+            if (itemData) {
+                stockInput.val(itemData.size);
+                $(`#colour_${index}`).val(itemData.colour);
+                $(`#brand_${index}`).val(itemData.brand);
+                $(`#mic_${index}`).val(itemData.mic);
+                $(`input[name="per_ctn_qty_${index}"]`).val(itemData.packing);
+                $(`input[name="qty_${index}"]`).val(itemData.production);
+                stockDropdown.hide();
+                selectedStockIndex = -1;
+            }
+        });
+        
+        // Handle stock keyboard navigation
+        stockInput.on('keydown', function(e) {
+            const items = stockDropdown.find('.dropdown-item:not(.text-muted)');
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedStockIndex = Math.min(selectedStockIndex + 1, items.length - 1);
+                    updateStockSelection(items);
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedStockIndex = Math.max(selectedStockIndex - 1, 0);
+                    updateStockSelection(items);
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedStockIndex >= 0) {
+                        const selected = items.eq(selectedStockIndex);
+                        const itemData = selected.data('item');
+                        if (itemData) {
+                            stockInput.val(itemData.size);
+                            $(`#colour_${index}`).val(itemData.colour);
+                            $(`#brand_${index}`).val(itemData.brand);
+                            $(`#mic_${index}`).val(itemData.mic);
+                            $(`input[name="per_ctn_qty_${index}"]`).val(itemData.packing);
+                            $(`input[name="qty_${index}"]`).val(itemData.production);
+                            stockDropdown.hide();
+                            selectedStockIndex = -1;
+                        }
+                    }
+                    break;
+                    
+                case 'Escape':
+                    stockDropdown.hide();
+                    selectedStockIndex = -1;
+                    break;
+            }
+        });
+        
+        function updateStockSelection(items) {
+            items.removeClass('active');
+            if (selectedStockIndex >= 0) {
+                items.eq(selectedStockIndex).addClass('active')
+                    .get(0).scrollIntoView({ block: 'nearest' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block title %}Jambo Ledger - Jambo Management Cloud{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-book text-primary"></i>
+            Jambo Ledger
+        </h2>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Jambo Number</label>
+                        <div class="input-group">
+                            <input type="text" id="jamboSearch" class="form-control" placeholder="Search jambo by number, color, party...">
+                            <button class="btn btn-primary" onclick="searchJambo()">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Search Results Dropdown -->
+                    <div id="searchResults" class="list-group mt-2 shadow-sm" style="display: none; position: absolute; z-index: 1000; width: 95%;"></div>
+                </div>
+                <div class="col-md-8">
+                    <div id="jamboPreview" class="d-none">
+                        <div class="alert alert-info mb-0">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h5 class="alert-heading mb-1">Jambo Details</h5>
+                                    <p class="mb-0" id="jamboBasicInfo"></p>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-info" onclick="viewLedger()">
+                                        <i class="fas fa-eye"></i> View Ledger
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger Section -->
+    <div id="ledgerSection" class="d-none">
+        <!-- Jambo Header -->
+        <div class="card mb-4 bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h5 class="mb-1">Jambo #<span id="ledgerJamboNo"></span></h5>
+                        <p class="mb-0" id="ledgerParty"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="mb-1">Size</h5>
+                        <p class="mb-0" id="ledgerSize"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="mb-1">Details</h5>
+                        <p class="mb-0" id="ledgerDetails"></p>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button class="btn btn-light" onclick="printLedger()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 100px;">Date</th>
+                                <th>Party Name</th>
+                                <th>Ref</th>
+                                <th>Size</th>
+                                <th style="width: 80px;">Shaft</th>
+                                <th style="width: 80px;">Pcs</th>
+                                <th style="width: 100px;">Yard In</th>
+                                <th style="width: 100px;">Yard Out</th>
+                                <th style="width: 120px;">Balance Yard</th>
+                                <th style="width: 100px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody">
+                            <!-- Ledger entries will be added here -->
+                        </tbody>
+                        <tfoot class="table-dark">
+                            <tr>
+                                <td colspan="2" class="text-end"><strong>Totals:</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-end"><strong id="totalYardIn">0</strong></td>
+                                <td class="text-end"><strong id="totalYardOut">0</strong></td>
+                                <td class="text-end"><strong id="finalBalance">0</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentJamboData = null;
+let searchTimeout = null;
+
+// Handle search input
+$('#jamboSearch').on('input', function() {
+    const query = $(this).val().trim();
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    // Hide results if query is empty
+    if (!query) {
+        $('#searchResults').hide();
+        return;
+    }
+    
+    // Set new timeout to prevent too many requests
+    searchTimeout = setTimeout(() => {
+        // Get search results
+        $.get('/reports/jambo/search', { query: query })
+            .done(function(response) {
+                if (response.success) {
+                    const results = $('#searchResults');
+                    results.empty();
+                    
+                    if (response.jambos.length === 0) {
+                        results.append(`
+                            <div class="list-group-item text-muted">
+                                No jambos found
+                            </div>
+                        `);
+                    } else {
+                        response.jambos.forEach(jambo => {
+                            results.append(`
+                                <a href="#" class="list-group-item list-group-item-action" 
+                                   onclick="selectJambo(${jambo.jambo_no})">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="text-primary">${jambo.description}</strong>
+                                            <small class="d-block text-muted">
+                                                Balance: ${jambo.balance_yard} yards
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-secondary">${formatDate(jambo.date)}</span>
+                                    </div>
+                                </a>
+                            `);
+                        });
+                    }
+                    
+                    results.show();
+                }
+            });
+    }, 300);  // 300ms delay
+});
+
+// Select jambo from search results
+function selectJambo(jamboNo) {
+    $('#jamboSearch').val(jamboNo);
+    $('#searchResults').hide();
+    searchJambo();
+}
+
+// Hide search results when clicking outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#jamboSearch, #searchResults').length) {
+        $('#searchResults').hide();
+    }
+});
+
+// Search jambo
+function searchJambo() {
+    const jamboNo = $('#jamboSearch').val();
+    if (!jamboNo) {
+        showToast('error', 'Please enter jambo number');
+        return;
+    }
+
+    // Show loading
+    $('#jamboSearch').prop('disabled', true);
+    
+    // Get jambo details
+    $.get(`/reports/jambo/${jamboNo}`)
+        .done(function(response) {
+            if (response.success) {
+                currentJamboData = response.jambo;
+                
+                // Show preview
+                $('#jamboBasicInfo').html(`
+                    <strong>Party:</strong> ${response.jambo.party_name} | 
+                    <strong>Size:</strong> ${response.jambo.size_mm}mm x ${response.jambo.size_meter}m | 
+                    <strong>Color:</strong> ${response.jambo.colour} | 
+                    <strong>Micron:</strong> ${response.jambo.micron}
+                `);
+                $('#jamboPreview').removeClass('d-none');
+                
+                // Hide ledger section
+                $('#ledgerSection').addClass('d-none');
+            } else {
+                showToast('error', response.message || 'Jambo not found');
+                $('#jamboPreview').addClass('d-none');
+            }
+        })
+        .fail(function() {
+            showToast('error', 'Error searching jambo');
+        })
+        .always(function() {
+            $('#jamboSearch').prop('disabled', false);
+        });
+}
+
+// View ledger
+function viewLedger() {
+    if (!currentJamboData) return;
+    
+    // Update ledger header
+    $('#ledgerJamboNo').text(currentJamboData.jambo_no);
+    $('#ledgerParty').text(currentJamboData.party_name);
+    $('#ledgerSize').text(`${currentJamboData.size_mm}mm x ${currentJamboData.size_meter}m`);
+    $('#ledgerDetails').html(`
+        Color: ${currentJamboData.colour}<br>
+        Micron: ${currentJamboData.micron}
+    `);
+    
+    // Get ledger entries
+    $.get(`/reports/jambo/${currentJamboData.jambo_no}/ledger`)
+        .done(function(response) {
+            if (response.success) {
+                // Clear table
+                const tbody = $('#ledgerTableBody');
+                tbody.empty();
+                
+                let totalYardIn = 0;
+                let totalYardOut = 0;
+                let balanceYard = currentJamboData.actual_yard;
+                
+                // Add initial entry
+                tbody.append(`
+                    <tr>
+                        <td>${formatDate(currentJamboData.date)}</td>
+                        <td>${currentJamboData.party_name}</td>
+                        <td>${response.opening_challan_no || '-'}</td>
+                        <td>${currentJamboData.size_mm}mm x ${currentJamboData.size_meter}m</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="text-end">${currentJamboData.actual_yard}</td>
+                        <td class="text-end">0</td>
+                        <td class="text-end">${balanceYard}</td>
+                        <td><span class="badge bg-success">Opening</span></td>
+                    </tr>
+                `);
+                
+                totalYardIn += currentJamboData.actual_yard;
+                
+                // Add production and sale entries
+                response.entries.forEach(entry => {
+                    balanceYard -= entry.status === 'Sale' ? 0 : (entry.yards_used || 0);
+                    totalYardOut += entry.status === 'Sale' ? 0 : (entry.yards_used || 0);
+                    tbody.append(`
+                        <tr>
+                            <td>${formatDate(entry.production_date)}</td>
+                            <td>${entry.customer_name}</td>
+                            <td>${entry.status === 'Opening' ? (response.opening_challan_no || '-') : (entry.reference_id || '-')}</td>
+                            <td>${entry.size || '-'}</td>
+                            <td class="text-center">${entry.shafts_used !== null && entry.shafts_used !== undefined ? entry.shafts_used : '-'}</td>
+                            <td class="text-center">${entry.produced_pieces !== null && entry.produced_pieces !== undefined ? entry.produced_pieces : '-'}</td>
+                            <td class="text-end">${entry.status === 'Sale' ? '-' : '0'}</td>
+                            <td class="text-end">${entry.status === 'Sale' ? (entry.yards_used || '-') : (entry.yards_used || '-')}</td>
+                            <td class="text-end">${balanceYard}</td>
+                            <td><span class="badge bg-${entry.status === 'Completed' ? 'success' : (entry.status === 'Sale' ? 'danger' : 'warning')}">${entry.status}</span></td>
+                        </tr>
+                    `);
+                });
+                
+                // Update totals
+                $('#totalYardIn').text(totalYardIn);
+                $('#totalYardOut').text(totalYardOut);
+                $('#finalBalance').text(balanceYard);
+                
+                // Show ledger section
+                $('#ledgerSection').removeClass('d-none');
+                
+            } else {
+                showToast('error', response.message || 'Error loading ledger');
+            }
+        })
+        .fail(function() {
+            showToast('error', 'Error loading ledger');
+        });
+}
+
+// Print ledger
+function printLedger() {
+    if (!currentJamboData) return;
+    window.print();
+}
+
+// Format date
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB');  // DD/MM/YYYY format
+}
+
+// Handle enter key in search
+$('#jamboSearch').on('keypress', function(e) {
+    if (e.which === 13) {  // Enter key
+        searchJambo();
+    }
+});
+</script>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        border: 1px solid #dee2e6;
+    }
+    
+    .table th {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %} 

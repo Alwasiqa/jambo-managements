@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Add Jambo - Jambo Management Cloud{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 text-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Add New Jambo Roll
+                </h1>
+                <p class="text-muted">Naya jambo roll add karne ke liye form fill karo</p>
+            </div>
+            <div>
+                <a href="{{ url_for('jambos.view_jambos') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Jambos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Jambo Form -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-film me-2"></i>
+                    Jambo Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="jambo-form">
+                    <div class="row">
+                        <!-- Basic Info Section -->
+                        <div class="col-12">
+                            <h6 class="section-title">Basic Information</h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="jambo_no" class="form-label">Jambo Number *</label>
+                            <input type="number" class="form-control" id="jambo_no" name="jambo_no" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="size_mm" class="form-label">Size (MM) *</label>
+                            <input type="number" class="form-control" id="size_mm" name="size_mm" value="1280" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="size_meter" class="form-label">Size (Meter) *</label>
+                            <input type="number" step="0.1" class="form-control" id="size_meter" name="size_meter" required>
+                        </div>
+                        
+                        <!-- Material Info Section -->
+                        <div class="col-12 mt-3">
+                            <h6 class="section-title">Material Information</h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="colour" class="form-label">Color *</label>
+                            <select class="form-control" id="colour" name="colour" required>
+                                <option value="">Select Color</option>
+                                <option value="CLEAR">CLEAR</option>
+                                <option value="TAN">TAN</option>
+                                <option value="BLUE">BLUE</option>
+                                <option value="WHITE">WHITE</option>
+                                <option value="GREEN">GREEN</option>
+                                <option value="BLACK">BLACK</option>
+                                <option value="RED">RED</option>
+                                <option value="YELLOW">YELLOW</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="micron" class="form-label">Micron *</label>
+                            <input type="number" class="form-control" id="micron" name="micron" value="37" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="roll_no" class="form-label">Roll Number *</label>
+                            <input type="number" class="form-control" id="roll_no" name="roll_no" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="net_weight" class="form-label">Net Weight (kg) *</label>
+                            <input type="number" step="0.1" class="form-control" id="net_weight" name="net_weight" required>
+                        </div>
+                        
+                        <!-- Party & Financial Info -->
+                        <div class="col-12 mt-3">
+                            <h6 class="section-title">Party & Financial Information</h6>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="party_name" class="form-label">Party Name *</label>
+                            <input type="text" class="form-control" id="party_name" name="party_name" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="rate_kg" class="form-label">Rate per KG (₨) *</label>
+                            <input type="number" step="0.1" class="form-control" id="rate_kg" name="rate_kg" value="750" required>
+                        </div>
+                        
+                        <!-- Calculated Fields -->
+                        <div class="col-12 mt-3">
+                            <h6 class="section-title">Calculated Values</h6>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="calculated_yard" class="form-label">Calculated Yard</label>
+                            <input type="number" class="form-control bg-light" id="calculated_yard" name="calculated_yard" readonly>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="actual_yard" class="form-label">Actual Yard</label>
+                            <input type="number" class="form-control" id="actual_yard" name="actual_yard">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="balance_yard" class="form-label">Balance Yard</label>
+                            <input type="number" class="form-control" id="balance_yard" name="balance_yard">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="amount" class="form-label">Total Amount (₨)</label>
+                            <input type="number" step="0.01" class="form-control bg-light" id="amount" name="amount" readonly>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="extra_yard" class="form-label">Extra Yard</label>
+                            <input type="number" class="form-control bg-light" id="extra_yard" name="extra_yard" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('jambos.view_jambos') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Jambo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    $('#date').val(today);
+    
+    // Auto-calculation functions
+    function calculateYards() {
+        const sizeMeters = parseFloat($('#size_meter').val()) || 0;
+        const calculatedYard = Math.round(sizeMeters * 1.08325);
+        $('#calculated_yard').val(calculatedYard);
+        
+        // Auto-set actual yard if empty
+        if (!$('#actual_yard').val()) {
+            $('#actual_yard').val(calculatedYard);
+        }
+        
+        calculateExtra();
+    }
+    
+    function calculateAmount() {
+        const weight = parseFloat($('#net_weight').val()) || 0;
+        const rate = parseFloat($('#rate_kg').val()) || 0;
+        const amount = weight * rate;
+        $('#amount').val(amount.toFixed(2));
+    }
+    
+    function calculateExtra() {
+        const calculated = parseInt($('#calculated_yard').val()) || 0;
+        const actual = parseInt($('#actual_yard').val()) || 0;
+        const extra = actual - calculated;
+        $('#extra_yard').val(extra);
+    }
+    
+    function setBalanceYard() {
+        const actualYard = parseInt($('#actual_yard').val()) || 0;
+        if (!$('#balance_yard').val()) {
+            $('#balance_yard').val(actualYard);
+        }
+    }
+    
+    // Bind calculation events
+    $('#size_meter').on('input', calculateYards);
+    $('#net_weight, #rate_kg').on('input', calculateAmount);
+    $('#actual_yard').on('input', function() {
+        calculateExtra();
+        setBalanceYard();
+    });
+    
+    // Form validation
+    $('#jambo-form').on('submit', function(e) {
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Check required fields
+        const requiredFields = ['jambo_no', 'date', 'size_mm', 'size_meter', 'colour', 'micron', 'roll_no', 'net_weight', 'party_name', 'rate_kg'];
+        
+        requiredFields.forEach(function(field) {
+            if (!$('#' + field).val()) {
+                isValid = false;
+                $('#' + field).addClass('is-invalid');
+            } else {
+                $('#' + field).removeClass('is-invalid');
+            }
+        });
+        
+        // Check if jambo number is positive
+        const jamboNo = parseInt($('#jambo_no').val());
+        if (jamboNo <= 0) {
+            isValid = false;
+            errorMessage += 'Jambo number must be positive.\n';
+            $('#jambo_no').addClass('is-invalid');
+        }
+        
+        // Check if sizes are positive
+        const sizeMM = parseInt($('#size_mm').val());
+        const sizeMeter = parseFloat($('#size_meter').val());
+        
+        if (sizeMM <= 0) {
+            isValid = false;
+            errorMessage += 'Size MM must be positive.\n';
+            $('#size_mm').addClass('is-invalid');
+        }
+        
+        if (sizeMeter <= 0) {
+            isValid = false;
+            errorMessage += 'Size Meter must be positive.\n';
+            $('#size_meter').addClass('is-invalid');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            if (errorMessage) {
+                alert('Please fix the following errors:\n' + errorMessage);
+            } else {
+                alert('Please fill all required fields.');
+            }
+            return false;
+        }
+        
+        // Show loading state
+        $(this).find('button[type="submit"]').html('<i class="loading-spinner me-2"></i>Saving...');
+    });
+    
+    // Real-time feedback
+    $('.form-control').on('blur', function() {
+        if ($(this).prop('required') && !$(this).val()) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+    
+    // Initialize calculations
+    calculateYards();
+    calculateAmount();
+});
+</script>
+{% endblock %} 

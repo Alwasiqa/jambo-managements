@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Jambo Management Cloud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Dropdown submenu styles */
+        .nav-item.dropdown {
+            position: relative;
+        }
+        
+        .submenu {
+            display: none;
+            background-color: rgba(0,0,0,0.2);
+            margin-left: 0;
+            border-radius: 0;
+        }
+        
+        .nav-item.dropdown:hover .submenu {
+            display: block;
+        }
+        
+        .submenu .nav-link {
+            padding: 10px 15px 10px 45px;
+            font-size: 14px;
+            border-left: 2px solid transparent;
+        }
+        
+        .submenu .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 2px solid #ffc107;
+            transform: translateX(3px);
+        }
+        
+        .submenu .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            border-left: 2px solid #ffc107;
+        }
+        
+        .nav-item.dropdown .nav-link i.dropdown-arrow {
+            margin-left: auto;
+            margin-right: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item.dropdown:hover .nav-link i.dropdown-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content-area {
+            padding: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+                transition: margin-left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+        }
+        
+        .search-box {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <h4 class="mb-0">
+                <i class="fas fa-film me-2"></i>🎬 Jambo<br>
+                <small style="font-size: 14px;">Management Cloud</small>
+            </h4>
+        </div>
+        
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            
+            <!-- Jambo Rolls Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/jambos">
+                    <i class="fas fa-film"></i>
+                    Jambo Rolls
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu">
+                    <a class="nav-link" href="/jambos">
+                        <i class="fas fa-list"></i>
+                        View All Jambos
+                    </a>
+                    <a class="nav-link" href="/jambos/bulk">
+                        <i class="fas fa-layer-group"></i>
+                        Bulk Add Jambos
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Customer Orders Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link" href="/orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    Customer Orders
+                    <i class="fas fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <div class="submenu" style="display: block;">
+                    <a class="nav-link active" href="/orders">
+                        <i class="fas fa-list"></i>
+                        View All Orders
+                    </a>
+                    <a class="nav-link" href="/orders/add">
+                        <i class="fas fa-user-plus"></i>
+                        New Order
+                    </a>
+                    <a class="nav-link" href="/orders/excel-import">
+                        <i class="fas fa-file-excel"></i>
+                        Excel Import
+                    </a>
+                </div>
+            </div>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px;">
+            
+            <a class="nav-link" href="/reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+            <a class="nav-link" href="#">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-primary mobile-toggle me-3" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="mb-0 text-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>Customer Orders
+                </h2>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="/orders/add" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>New Order
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Real-time Search Box -->
+            <div class="search-box">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0 text-primary">🔍 Real-Time Search</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" class="d-flex">
+                            <input type="text" name="search" class="form-control me-2" 
+                                   placeholder="Search by Order#, Customer, Phone..." 
+                                   value="{{ search }}" id="searchInput">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            {% if search %}
+                            <a href="/orders" class="btn btn-outline-danger ms-2">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+                {% if search %}
+                <div class="mt-2">
+                    <small class="text-muted">Search results for: "<strong>{{ search }}</strong>"</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="btn-group me-3" role="group">
+                                <a href="/orders/add" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i>New Order
+                                </a>
+                                <a href="/orders/excel-import" class="btn btn-primary">
+                                    <i class="fas fa-file-excel me-1"></i>Excel Import
+                                </a>
+                                <button class="btn btn-secondary" onclick="window.location.reload()">
+                                    <i class="fas fa-sync me-1"></i>Refresh
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-primary fs-6">
+                                Total Orders: {{ orders|length }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Orders List
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="ordersTable">
+                                <thead style="background: #428bca; color: white;">
+                                    <tr>
+                                        <th>Order No</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Phone</th>
+                                        <th>Items</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr onclick="selectOrder('{{ order.order_no }}')" style="cursor: pointer;">
+                                        <td><strong class="text-primary">#{{ order.order_no }}</strong></td>
+                                        <td>{{ order.order_date }}</td>
+                                        <td><strong>{{ order.customer_name }}</strong></td>
+                                        <td>
+                                            {% if order.customer_phone %}
+                                                <a href="tel:{{ order.customer_phone }}" class="text-decoration-none" onclick="event.stopPropagation();">
+                                                    <i class="fas fa-phone me-1"></i>{{ order.customer_phone }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                {{ order.item_count }} items
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if order.status == 'Pending' %}
+                                                <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                                            {% elif order.status == 'Processing' %}
+                                                <span class="badge bg-info">{{ order.status }}</span>
+                                            {% elif order.status == 'In Progress' %}
+                                                <span class="badge bg-primary">{{ order.status }}</span>
+                                            {% elif order.status == 'Completed' %}
+                                                <span class="badge bg-success">{{ order.status }}</span>
+                                            {% elif order.status == 'Partial' %}
+                                                <span class="badge bg-secondary">{{ order.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-dark">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">Rs. {{ "{:,.0f}".format(order.total_amount) }}</strong>
+                                        </td>
+                                        <td onclick="event.stopPropagation();">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-info" title="View Details" 
+                                                        onclick="viewOrderDetails('{{ order.order_no }}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning" title="Edit" 
+                                                        onclick="editOrder('{{ order.order_no }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm" style="background: #25D366; color: white;" 
+                                                        title="Send WhatsApp" onclick="sendWhatsApp('{{ order.order_no }}', '{{ order.customer_name|replace("'", "\\'") }}')">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete" 
+                                                        onclick="deleteOrder('{{ order.order_no }}', '{{ order.customer_name|replace("'", "\\'") }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="text-muted mb-3">
+                                <i class="fas fa-shopping-cart fa-3x"></i>
+                            </div>
+                            <h5 class="text-muted">No orders found</h5>
+                            {% if search %}
+                                <p class="text-muted">Try adjusting your search terms</p>
+                                <a href="/orders" class="btn btn-outline-primary">
+                                    <i class="fas fa-list me-2"></i>Show All Orders
+                                </a>
+                            {% else %}
+                                <p class="text-muted">Start by creating your first customer order</p>
+                                <a href="/orders/add" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create First Order
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedOrderNo = null;
+        
+        function selectOrder(orderNo) {
+            selectedOrderNo = orderNo;
+            
+            // Remove previous selection
+            document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+                row.classList.remove('table-active');
+            });
+            
+            // Add selection to clicked row
+            event.currentTarget.classList.add('table-active');
+            
+            console.log('Selected Order:', orderNo);
+        }
+        
+        // Real-time search functionality
+        let searchTimeout;
+        // Purana form auto-submit search logic hata rahe hain
+        // document.getElementById('searchInput').addEventListener('input', function() {
+        //     clearTimeout(searchTimeout);
+        //     searchTimeout = setTimeout(() => {
+        //         const searchValue = this.value.trim();
+        //         if (searchValue.length > 2 || searchValue.length === 0) {
+        //             // Auto-submit form for real-time search
+        //             const form = this.closest('form');
+        //             if (form) {
+        //                 form.submit();
+        //             }
+        //         }
+        //     }, 500);
+        // });
+        
+        // Roman Urdu: Real-time search for orders table
+        const searchInput = document.getElementById('searchInput');
+        const ordersTable = document.getElementById('ordersTable');
+        if (searchInput && ordersTable) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = ordersTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    let show = false;
+                    if (rowText.includes(searchTerm) || searchTerm === '') {
+                        show = true;
+                    } else {
+                        // Roman Urdu: Date ki column ko alag se check kar rahe hain
+                        const dateCell = row.querySelectorAll('td')[1];
+                        if (dateCell) {
+                            const dateVal = dateCell.innerText.trim(); // DD-MM-YYYY
+                            // MM-YYYY
+                            if (/^\d{2}-\d{4}$/.test(searchTerm)) {
+                                const [mm, yyyy] = searchTerm.split('-');
+                                if (dateVal.endsWith(`-${yyyy}`) && dateVal.slice(3,5) === mm) show = true;
+                            }
+                            // YYYY-MM
+                            else if (/^\d{4}-\d{2}$/.test(searchTerm)) {
+                                const [yyyy, mm] = searchTerm.split('-');
+                                if (dateVal.endsWith(yyyy) && dateVal.slice(3,5) === mm) show = true;
+                            }
+                            // Sirf year
+                            else if (/^\d{4}$/.test(searchTerm)) {
+                                if (dateVal.endsWith(searchTerm)) show = true;
+                            }
+                            // Sirf month (01-12)
+                            else if (/^\d{2}$/.test(searchTerm)) {
+                                if (dateVal.slice(3,5) === searchTerm) show = true;
+                            }
+                        }
+                    }
+                    row.style.display = show ? '' : 'none';
+                });
+            });
+        }
+        
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+        
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+        
+        // WhatsApp functionality
+        function sendWhatsApp(orderNo, customerName) {
+            fetch(`/whatsapp/order/${orderNo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    // Show WhatsApp modal
+                    showWhatsAppModal(data.message, customerName, data.phone);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error generating WhatsApp message');
+                });
+        }
+        
+        function showWhatsAppModal(message, customer, phone) {
+            // Create modal HTML
+            const modalHTML = `
+                <div class="modal fade" id="whatsappModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background: #25D366; color: white;">
+                                <h5 class="modal-title">
+                                    <i class="fab fa-whatsapp"></i> Send Order via WhatsApp
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Customer:</strong> ${customer}</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message Preview:</label>
+                                    <textarea class="form-control" id="whatsappMessage" rows="15" style="font-family: monospace;">${message}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background: #25D366; color: white;" onclick="sendWhatsAppDirect()">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('whatsappModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+            modal.show();
+        }
+        
+        function sendWhatsAppDirect() {
+            const message = document.getElementById('whatsappMessage').value;
+            if (!message.trim()) {
+                alert('Message is empty!');
+                return;
+            }
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappModal'));
+            modal.hide();
+            
+            // Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            alert('🚀 WhatsApp opened!\\n📱 Message loaded automatically\\n👥 Select contact to send');
+        }
+        
+        // View Order Details Function
+        function viewOrderDetails(orderNo) {
+            // Redirect to order details page
+            window.location.href = `/orders/details/${orderNo}`;
+        }
+        
+        // Edit Order Function - FIXED!
+        function editOrder(orderNo) {
+            // Redirect to edit order page
+            window.location.href = `/orders/edit/${orderNo}`;
+        }
+        
+        // Delete Order Function
+        function deleteOrder(orderNo, customerName) {
+            // Enhanced confirmation with Roman Urdu
+            const confirmMessage = `🗑️ DELETE ORDER CONFIRMATION\n\n` +
+                                 `Order: ${orderNo}\n` +
+                                 `Customer: ${customerName}\n\n` +
+                                 `⚠️ WARNING: Yeh order aur saare items permanently delete ho jayenge!\n\n` +
+                                 `Kya aap sure hain ke delete karna chahte hain?`;
+                                 
+            if (confirm(confirmMessage)) {
+                // Show loading message
+                const loadingMsg = `⏳ Order ${orderNo} delete ho raha hai...\n\nPlease wait...`;
+                
+                // Make delete request
+                fetch(`/orders/delete/${orderNo}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success message in Roman Urdu
+                        alert(data.message);
+                        // Reload page to show updated list
+                        window.location.reload();
+                    } else {
+                        // Error message
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Delete karne mein error aya hai!\n\nPlease try again or contact support.');
+                });
+            }
+        }
+        
+        // Double-click for order details (now working)
+        document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+            row.addEventListener('dblclick', function() {
+                const orderNo = this.cells[0].textContent.replace('#', '');
+                viewOrderDetails(orderNo);
+            });
+        });
+    </script>
+</body>
+</html>
